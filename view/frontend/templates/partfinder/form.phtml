@@ -28,7 +28,7 @@ $sm = $vcSize === 'sm';
     </span>
     <button type="button" class="vc-trigger" :class="{ 'is-empty': !selectedMake }"
             @click="ensureMakes(); openMake = !openMake; openModel = openYear = openPart = false; if (openMake) $nextTick(() => $refs.searchMake && $refs.searchMake.focus())"
-            x-text="selectedMakeLabel || '<?= $escaper->escapeJs(__('Select Make')) ?>'"></button>
+            x-text="selectedMakeLabel || '<?= $escaper->escapeJs(__('Select') . ' ' . $block->getMakeLabel()) ?>'"></button>
     <button type="button" x-show="selectedMake" @click.stop="clearField('make')" class="vc-clear" aria-label="Clear">×</button>
     <span class="vc-chev"><svg width="<?= $sm ? 12 : 14 ?>" height="<?= $sm ? 12 : 14 ?>" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></span>
     <template x-if="openMake">
@@ -55,7 +55,7 @@ $sm = $vcSize === 'sm';
     </span>
     <button type="button" class="vc-trigger" :class="{ 'is-empty': !selectedModel }"
             @click="ensureModels(); openModel = !openModel; openMake = openYear = openPart = false; if (openModel) $nextTick(() => $refs.searchModel && $refs.searchModel.focus())"
-            x-text="selectedModelLabel || '<?= $escaper->escapeJs(__('Select Model')) ?>'"></button>
+            x-text="selectedModelLabel || '<?= $escaper->escapeJs(__('Select') . ' ' . $block->getModelLabel()) ?>'"></button>
     <button type="button" x-show="selectedModel" @click.stop="clearField('model')" class="vc-clear" aria-label="Clear">×</button>
     <span class="vc-chev"><svg width="<?= $sm ? 12 : 14 ?>" height="<?= $sm ? 12 : 14 ?>" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></span>
     <template x-if="openModel">
@@ -72,7 +72,8 @@ $sm = $vcSize === 'sm';
     </template>
 </div>
 
-<!-- Year -->
+<?php if ($block->isYearFieldEnabled()): ?>
+<!-- Year (v1.0.2: admin can hide via "Show Year Field" config) -->
 <div class="vc-row vc-combo" @click.away="openYear = false">
     <span class="vc-ico-left">
         <svg width="<?= $sm ? 14 : 16 ?>" height="<?= $sm ? 14 : 16 ?>" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
@@ -81,7 +82,7 @@ $sm = $vcSize === 'sm';
     </span>
     <button type="button" class="vc-trigger" :class="{ 'is-empty': !selectedYear }"
             @click="ensureYears(); openYear = !openYear; openMake = openModel = openPart = false; if (openYear) $nextTick(() => $refs.searchYear && $refs.searchYear.focus())"
-            x-text="selectedYearLabel || '<?= $escaper->escapeJs(__('Select Year')) ?>'"></button>
+            x-text="selectedYearLabel || '<?= $escaper->escapeJs(__('Select') . ' ' . $block->getYearLabel()) ?>'"></button>
     <button type="button" x-show="selectedYear" @click.stop="clearField('year')" class="vc-clear" aria-label="Clear">×</button>
     <span class="vc-chev"><svg width="<?= $sm ? 12 : 14 ?>" height="<?= $sm ? 12 : 14 ?>" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></span>
     <template x-if="openYear">
@@ -97,6 +98,7 @@ $sm = $vcSize === 'sm';
         </div>
     </template>
 </div>
+<?php endif; ?>
 
 <!-- Parts Required -->
 <div class="vc-row vc-combo" @click.away="openPart = false">
@@ -107,7 +109,7 @@ $sm = $vcSize === 'sm';
     </span>
     <button type="button" class="vc-trigger" :class="{ 'is-empty': !selectedPart }"
             @click="ensureParts(); openPart = !openPart; openMake = openModel = openYear = false; if (openPart) $nextTick(() => $refs.searchPart && $refs.searchPart.focus())"
-            x-text="selectedPartLabel || '<?= $escaper->escapeJs(__('Select Parts Required')) ?>'"></button>
+            x-text="selectedPartLabel || '<?= $escaper->escapeJs(__('Select') . ' ' . $block->getPartLabel()) ?>'"></button>
     <button type="button" x-show="selectedPart" @click.stop="clearField('part')" class="vc-clear" aria-label="Clear">×</button>
     <span class="vc-chev"><svg width="<?= $sm ? 12 : 14 ?>" height="<?= $sm ? 12 : 14 ?>" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></span>
     <template x-if="openPart">

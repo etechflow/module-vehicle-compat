@@ -86,6 +86,111 @@
                         quickly disabling without uninstalling.
                     ]]></comment>
                 </field>
+                <field id="earliest_year"
+                       translate="label comment tooltip"
+                       type="text"
+                       sortOrder="20"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Earliest Year</label>
+                    <validate>validate-number validate-greater-than-zero</validate>
+                    <tooltip>The oldest year that appears in the Year dropdown. Default 1990.</tooltip>
+                    <comment><![CDATA[
+                        The oldest year that appears in the Year dropdown on the Part Finder.<br/>
+                        <strong>Default 1990</strong> covers modern cars.<br/>
+                        <strong>Set to 1950</strong> for vintage car parts shops (classic Mustangs,
+                        Land Rover Series, etc.).<br/>
+                        <strong>Set to 2007</strong> for smartphone-fitment shops where there's no
+                        point listing pre-iPhone years.<br/>
+                        Anything below 1900 or above the current year is clamped to safe bounds.
+                    ]]></comment>
+                </field>
+                <field id="show_year_field"
+                       translate="label comment tooltip"
+                       type="select"
+                       sortOrder="30"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Show Year Field</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <tooltip>Hide the Year dropdown if your fitment domain doesn't need it (phone cases, watches, etc.).</tooltip>
+                    <comment><![CDATA[
+                        Show or hide the Year dropdown in the Part Finder form.<br/>
+                        <strong>Yes</strong> (default) = Year dropdown renders — for any time-bound
+                        fitment (vehicles, electronics with model years, etc.).<br/>
+                        <strong>No</strong> = Year dropdown is hidden — the form becomes Make → Model →
+                        Part. Useful for phone cases, watch straps, printer cartridges, appliance parts
+                        and similar domains where year doesn't matter.
+                    ]]></comment>
+                </field>
+                <field id="label_make"
+                       translate="label comment tooltip"
+                       type="text"
+                       sortOrder="40"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>"Make" Field Label</label>
+                    <tooltip>Customer-facing label for the Make dropdown. Leave blank for the default ("Make").</tooltip>
+                    <comment><![CDATA[
+                        Customer-facing label for the Make dropdown (top of the Part Finder).<br/>
+                        Default: <em>Make</em>. Common alternatives:<br/>
+                        - <strong>Brand</strong> — for phone cases, watches, appliances<br/>
+                        - <strong>Manufacturer</strong> — for industrial parts<br/>
+                        - <strong>Category</strong> — for cross-product fitment<br/>
+                        Leave blank to use the default.
+                    ]]></comment>
+                </field>
+                <field id="label_model"
+                       translate="label comment tooltip"
+                       type="text"
+                       sortOrder="50"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>"Model" Field Label</label>
+                    <tooltip>Customer-facing label for the Model dropdown.</tooltip>
+                    <comment><![CDATA[
+                        Default: <em>Model</em>. Common alternatives:<br/>
+                        - <strong>Phone</strong> / <strong>Tablet</strong> — for accessories<br/>
+                        - <strong>Watch</strong> — for watch parts<br/>
+                        - <strong>Model Number</strong> — for industrial parts
+                    ]]></comment>
+                </field>
+                <field id="label_year"
+                       translate="label comment tooltip"
+                       type="text"
+                       sortOrder="60"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>"Year" Field Label</label>
+                    <tooltip>Customer-facing label for the Year dropdown.</tooltip>
+                    <comment><![CDATA[
+                        Default: <em>Year</em>. Common alternatives:<br/>
+                        - <strong>Generation</strong> — for phones (iPhone 13/14/15…)<br/>
+                        - <strong>Year of Manufacture</strong> — for older fitments<br/>
+                        - <strong>Model Year</strong> — for cars where it matters
+                    ]]></comment>
+                </field>
+                <field id="label_part"
+                       translate="label comment tooltip"
+                       type="text"
+                       sortOrder="70"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>"Parts" Field Label</label>
+                    <tooltip>Customer-facing label for the Parts Required dropdown.</tooltip>
+                    <comment><![CDATA[
+                        Default: <em>Parts Required</em>. Common alternatives:<br/>
+                        - <strong>Type</strong> / <strong>Style</strong> — for phone cases<br/>
+                        - <strong>Strap Size</strong> — for watch straps<br/>
+                        - <strong>Component</strong> — for industrial parts
+                    ]]></comment>
+                </field>
             </group>
         </section>
     </system>

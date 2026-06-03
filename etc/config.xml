@@ -9,6 +9,12 @@
             </license>
             <general>
                 <enabled>1</enabled>
+                <earliest_year>1990</earliest_year>
+                <show_year_field>1</show_year_field>
+                <label_make>Make</label_make>
+                <label_model>Model</label_model>
+                <label_year>Year</label_year>
+                <label_part>Parts Required</label_part>
             </general>
         </etechflow_vehiclecompat>
     </default>

@@ -47,6 +47,7 @@ class PartFinderData extends Template
     private ResourceConnection $resource;
     private CacheInterface $cache;
     private SerializerInterface $serializer;
+    private \ETechFlow\VehicleCompat\Model\Config $config;
     private ?array $tree = null;
 
     public function __construct(
@@ -54,13 +55,30 @@ class PartFinderData extends Template
         ResourceConnection $resource,
         CacheInterface $cache,
         SerializerInterface $serializer,
+        \ETechFlow\VehicleCompat\Model\Config $config,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->resource   = $resource;
         $this->cache      = $cache;
         $this->serializer = $serializer;
+        $this->config     = $config;
     }
+
+    /** Customer-facing label for the Make dropdown — admin-configurable since v1.0.2. */
+    public function getMakeLabel(): string  { return $this->config->getMakeLabel(); }
+
+    /** Customer-facing label for the Model dropdown — admin-configurable since v1.0.2. */
+    public function getModelLabel(): string { return $this->config->getModelLabel(); }
+
+    /** Customer-facing label for the Year dropdown — admin-configurable since v1.0.2. */
+    public function getYearLabel(): string  { return $this->config->getYearLabel(); }
+
+    /** Customer-facing label for the Parts Required dropdown — admin-configurable since v1.0.2. */
+    public function getPartLabel(): string  { return $this->config->getPartLabel(); }
+
+    /** Whether the Year row should render at all — admin-configurable since v1.0.2. */
+    public function isYearFieldEnabled(): bool { return $this->config->isYearFieldEnabled(); }
 
     public function getTreeJson(): string
     {

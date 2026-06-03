@@ -1,5 +1,118 @@
 # Changelog — ETechFlow_VehicleCompat
 
+## [1.0.2] — 2026-06-03 — Universal fitment: admin-configurable labels, Year bounds, optional Year field
+
+Same module, three new admin knobs that make it work for any
+product-fitment domain — not just vehicles. Drop-in upgrade from
+1.0.1, no schema change, no breaking change. Default behaviour
+identical to 1.0.1 (Year field visible, "Make/Model/Year/Parts"
+labels, year range 1990 – current).
+
+### Added
+
+Three new admin fields under *Stores → Configuration → eTechFlow →
+Vehicle Compatibility → General Settings*:
+
+1. **Earliest Year** — text field, default `1990`. The oldest year
+   that appears in the Year dropdown. Set to `1950` for vintage car
+   parts shops (classic Mustangs, Series Land Rovers). Set to `2007`
+   for smartphone-fitment shops where there's no point listing
+   pre-iPhone years. Anything below 1900 or above the current year
+   gets clamped to safe bounds.
+
+2. **Show Year Field** — Yes/No, default Yes. When No, the Year
+   dropdown disappears from the Part Finder form. The form becomes
+   Make → Model → Parts, which is what phone case shops, watch strap
+   shops, printer cartridge shops, and appliance parts shops actually
+   need.
+
+3. **Field Labels** — 4 separate text fields for the customer-facing
+   labels:
+   - **Make Field Label** (default "Make") — set to "Brand" for
+     phone cases / watches / appliances
+   - **Model Field Label** (default "Model") — set to "Phone" /
+     "Watch" / "Appliance Model"
+   - **Year Field Label** (default "Year") — set to "Generation"
+     for phones, "Year of Manufacture" for older fitments
+   - **Parts Field Label** (default "Parts Required") — set to
+     "Type" / "Style" / "Strap Size" / "Component"
+
+   When the labels are configured, the Part Finder dropdowns render
+   the merchant's wording instead of "Select Make / Select Model /
+   etc." A blank label falls back to the default.
+
+### Changed
+
+- **`Model/Source/Year.php`** — `MIN_YEAR` constant is now
+  `@deprecated`; the year source reads from `Config::getEarliestYear()`
+  instead. Constant kept on disk so any third-party code referencing
+  it doesn't immediately fatal.
+
+- **`Block/PartFinderData.php`** — gains 5 public getters:
+  `getMakeLabel()`, `getModelLabel()`, `getYearLabel()`,
+  `getPartLabel()`, `isYearFieldEnabled()`. Templates and any
+  custom integration can read the configured values.
+
+- **`view/frontend/templates/partfinder/form.phtml`** — uses the
+  configured labels for placeholder texts; wraps the Year field
+  block with `if ($block->isYearFieldEnabled())` so it can disappear
+  entirely when not relevant.
+
+- **`Setup/Patch/Data/V102ReleaseMarker.php`** — no-op release
+  marker patch, depends on V101.
+
+### Why this matters
+
+This release transforms the module from "Vehicle Compatibility" into
+a "Universal Product Fitment Finder". The same code now sells to:
+
+- **Auto parts** (as before — `Make/Model/Year/Parts` works perfectly)
+- **Motorcycle / marine / RV / ATV / bicycle parts** (same labels work)
+- **Vintage car parts** (set Earliest Year to 1950)
+- **Phone cases** (set labels to `Brand/Phone/Generation/Style`, hide
+  Year, set Earliest Year to 2007)
+- **Watch straps** (`Brand/Watch/<hide year>/Strap Size`)
+- **Printer cartridges** (`Brand/Printer/Year/Cartridge Type`)
+- **Appliance parts** (`Brand/Appliance Model/Year/Part Type`)
+- **Any product fitment problem** the merchant can map to 2-4 axes
+
+Competing against Amasty Product Parts Finder (~$399) at a fraction
+of the price.
+
+### Not changed
+
+- No schema changes — drop-in upgrade from 1.0.1
+- No URL changes — existing `/vehiclecompat/find/index` URLs keep working
+- No API changes — public block + service methods unchanged
+- Default behaviour identical to 1.0.1 — merchants who don't touch
+  the new fields see no change at all
+
+### Migration
+
+```bash
+composer require etechflow/module-vehicle-compat:^1.0.2
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento cache:flush
+```
+
+Pre-flight check:
+```sql
+SELECT module, schema_version, data_version FROM setup_module
+WHERE module='ETechFlow_VehicleCompat';
+```
+Both should read `1.0.2`. If `data_version` is stale, re-run
+`setup:upgrade` — do NOT flush cache yet.
+
+To opt in to the universal-fitment positioning:
+1. Set your merchant's label preferences in
+   *Stores → Configuration → eTechFlow → Vehicle Compatibility →
+   General Settings*.
+2. If your fitment domain doesn't use year, set Show Year Field to No.
+3. Save → flush cache → reload the Part Finder.
+
+---
+
 ## [1.0.1] — 2026-06-03 — Brand de-leak: rename Keystation-derived routes, files, and CSS classes
 
 Cosmetic but important release. Renames every customer-visible and
