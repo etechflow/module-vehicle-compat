@@ -2,7 +2,7 @@
     "name": "etechflow/module-vehicle-compat",
     "description": "Vehicle compatibility (Make/Model/Year) editor + Part Finder widget for Magento 2. Admin tags products with the vehicles they fit; customers filter the catalog by their car. Theme-agnostic \u2014 works on Hyv\u00e4, Luma, and any custom theme.",
     "type": "magento2-module",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "license": "proprietary",
     "keywords": [
         "magento",

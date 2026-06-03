@@ -1,5 +1,30 @@
 # Changelog — ETechFlow_VehicleCompat
 
+## [1.0.3] — 2026-06-03 — Restore docs accidentally pruned during v1.0.2 publish-repo sync
+
+The v1.0.2 release shipped clean code but the publish-repo rsync
+accidentally deleted the top-level documentation files
+(INSTALL.md, USAGE.md, CONFIGURATION.md, COMPATIBILITY.md,
+UNINSTALL.md) that ship at the repo root alongside README and
+CHANGELOG. This release restores them.
+
+No code change. No behaviour change. Pure documentation file
+restoration plus V103ReleaseMarker for always-a-patch discipline.
+
+If you installed 1.0.2 you're functionally fine — composer doesn't
+care about INSTALL.md vs not. But the GitHub repo page was missing
+those docs and 1.0.3 puts them back.
+
+### Migration
+
+```bash
+composer require etechflow/module-vehicle-compat:^1.0.3
+bin/magento setup:upgrade
+bin/magento cache:flush
+```
+
+---
+
 ## [1.0.2] — 2026-06-03 — Universal fitment: admin-configurable labels, Year bounds, optional Year field
 
 Same module, three new admin knobs that make it work for any
