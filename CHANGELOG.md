@@ -1,5 +1,108 @@
 # Changelog — ETechFlow_VehicleCompat
 
+## [1.2.1] — 2026-06-03 — Storefront copy polish + customer-facing tooltips + theme accent colour
+
+Final polish release. v1.1.1 / v1.2.0 made the big strings
+configurable; v1.2.1 sweeps up the remaining ~12 minor strings,
+adds 3 optional customer-facing tooltips, and replaces the hardcoded
+inline accent colour with a CSS custom property so themes can override.
+
+### Added — 12 new copy fields under new admin group "Storefront Copy Polish + Tooltips"
+
+Every remaining customer-visible string now configurable:
+
+1. **"No Results" Title** — when filters return zero products (default `No products match all your filters.`)
+2. **"No Results" Hint** — secondary line (`Try removing one or two filters…`)
+3. **"Use the Form" Prompt** — secondary line in empty-state (`Use the form above to start.`)
+4. **Dropdown "No Matches"** — when a typed search yields no items (`No matches`)
+5. **Dropdown Search Placeholder** — each dropdown's search input (`Search…`)
+6. **PDP Fitment Badge Overflow** — template with `{count}` placeholder (`and {count} more`)
+7. **Garage Widget Title** — default `My Garage`. Watch shop: `My Watches`. Phone shop: `My Phones`.
+8. **Garage Clear-All Button** — `Clear Garage`
+9. **Garage Remove Label** — `Remove` (aria-label + title for × button)
+10. **"Saved!" Confirmation Text** — the 1.5s post-save microinteraction
+11. **Sidebar "No Filters" Message** — `No filters active.`
+12. **OEM Search Submit Button** — `Search`
+
+### Added — 3 customer-facing tooltips (all optional)
+
+Rendered as standard HTML `title=""` attributes. Blank value → no tooltip.
+
+13. **PDP Fitment Badge Tooltip** — suggested:
+    > "This list shows the vehicles this part fits. Match your car's Make, Model and Year to confirm."
+14. **My Garage Tooltip** — suggested:
+    > "Vehicles you've saved for quick reload. Click any vehicle to filter the catalog by that fit."
+15. **OEM Search Tooltip** — suggested:
+    > "Paste a part number (OEM, MPN, or your store's SKU) to find the matching product directly."
+
+Each tooltip default is **empty** — opt in by typing a message in admin.
+The PDP fitment badge gains `tabindex="0"` when a tooltip is set so
+keyboard users get the hover help.
+
+### Added — Theme accent colour
+
+16. **Accent Colour (hex)** — six-digit hex, default `#0535F5`
+    (eTechFlow blue). Validated against `/^#?[0-9a-f]{6}$/i`; anything
+    malformed falls back silently. Drives:
+    - OEM Search submit button (via `var(--etechflow-vc-accent, #0535F5)`)
+    - Find page CSS custom property `--etechflow-vc-accent` scoped to the
+      `.vc-find-page` wrapper. Your theme CSS can also override it
+      globally for full design-system integration.
+
+Common values: `#16A34A` green / `#DC2626` red / `#7C3AED` purple.
+
+### Added — supporting infrastructure
+
+- `Setup/Patch/Data/V121ReleaseMarker.php` — always-a-patch discipline.
+  Depends on `V120ReleaseMarker`.
+- **16 new Config getters** covering all of the above. Accent colour
+  getter validates input shape to defend against malformed values.
+
+### Changed
+
+- `Block/FindResults`: 7 new getters.
+- `Block/PartFinderData`: 4 new getters for the form template.
+- `Block/Garage`: 5 new getters.
+- `Block/Product/FitmentBadge::getRenderData()`: now includes
+  `more_text` (configurable overflow) and `tooltip` (optional title).
+
+### Templates updated
+
+- `product/fitment-badge.phtml`: tooltip + configurable overflow
+- `garage/widget.phtml`: tooltip + title/clear/remove all configurable
+- `find/results.phtml`: no-results / use-form copy + OEM tooltip +
+  OEM button text + CSS variable for accent
+- `find/chips.phtml`: use-form prompt configurable
+- `find/sidebar.phtml`: no-filters message configurable
+
+### Not changed
+
+- No schema changes — drop-in from 1.2.0.
+- All 16 new fields opt-in; defaults preserve v1.2.0 behaviour exactly.
+- No URL or API breakage.
+
+### Migration
+
+```bash
+composer require etechflow/module-vehicle-compat:^1.2.1
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento setup:static-content:deploy -f
+bin/magento cache:flush
+```
+
+### Verified
+
+- PHP lint: 63/63 clean. XML: 25/25 clean.
+- Local Docker: `setup:upgrade` advanced 1.2.0 → 1.2.1, `V121ReleaseMarker`
+  landed (id=218), all 13 new Config getters return correct defaults.
+- Accent colour input validation: malformed values (`rubbish-not-hex`)
+  correctly fall back to `#0535F5`; valid hex (`#16A34A`) returned as-is.
+- Fitment overflow placeholder substitution: `getFitmentOverflow(5)`
+  → `and 5 more`.
+
+---
+
 ## [1.2.0] — 2026-06-03 — Customer-attribute garage sync + OEM/part-number search (final Amasty parity)
 
 Closes the last two competitive gaps vs Amasty Product Parts Finder.

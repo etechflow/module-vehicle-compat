@@ -90,6 +90,12 @@ class PartFinderData extends Template
     /** v1.1.1 — Garage availability so templates can show the Save button conditionally. */
     public function isSavedGarageEnabled(): bool    { return $this->config->isSavedGarageEnabled(); }
 
+    /** v1.2.1 — polish copy + accent colour for the form template. */
+    public function getNoMatchesText(): string          { return $this->config->getNoMatchesText(); }
+    public function getDropdownSearchPlaceholder(): string { return $this->config->getDropdownSearchPlaceholder(); }
+    public function getSavedFeedback(): string          { return $this->config->getSavedFeedback(); }
+    public function getAccentColour(): string           { return $this->config->getAccentColour(); }
+
     public function getTreeJson(): string
     {
         return $this->serializer->serialize($this->getTree());

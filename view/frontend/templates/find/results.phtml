@@ -27,7 +27,9 @@ $showDescription  = false;
 $templateType     = \Magento\Catalog\Block\Product\ReviewRendererInterface::SHORT_VIEW;
 $eagerLoadImagesCount = 4;
 ?>
-<div class="vc-find-page" style="max-width:1280px;margin:0 auto;padding:16px 1rem 48px;font-family:inherit">
+<?php /* v1.2.1: surface the accent colour as a CSS custom property scoped to this
+        wrapper. Theme can also override globally via --etechflow-vc-accent in your own CSS. */ ?>
+<div class="vc-find-page" style="max-width:1280px;margin:0 auto;padding:16px 1rem 48px;font-family:inherit;--etechflow-vc-accent:<?= $escaper->escapeHtmlAttr($block->getAccentColour()) ?>">
 
     <h1 style="font-size:1.75rem;font-weight:900;color:#0E1025;margin:0 0 12px;letter-spacing:-.01em">
         <?= $escaper->escapeHtml($block->getFindPageTitle()) ?>
@@ -37,7 +39,7 @@ $eagerLoadImagesCount = 4;
             has enabled OEM search (Stores → Config → Vehicle Compatibility →
             OEM / Part-Number Search → Enable). Uses GET so the query stays
             shareable + cacheable. */ ?>
-    <?php if ($block->isOemSearchEnabled()): ?>
+    <?php if ($block->isOemSearchEnabled()): $oemTooltip = $block->getOemTooltip(); ?>
     <form method="get" action="" class="vc-oem-search" style="max-width:480px;margin:0 0 18px;font-family:inherit">
         <label for="vc-oem-input" style="display:block;font-size:.85rem;font-weight:600;color:#374151;margin-bottom:6px">
             <?= $escaper->escapeHtml($block->getOemSearchLabel()) ?>
@@ -46,12 +48,13 @@ $eagerLoadImagesCount = 4;
             <input id="vc-oem-input" type="text" name="oem"
                    value="<?= $escaper->escapeHtmlAttr($block->getOemTerm()) ?>"
                    placeholder="<?= $escaper->escapeHtmlAttr($block->getOemSearchPlaceholder()) ?>"
+                   <?php if ($oemTooltip !== ''): ?>title="<?= $escaper->escapeHtmlAttr($oemTooltip) ?>"<?php endif; ?>
                    style="flex:1;padding:.55rem .8rem;font-size:.9rem;border:1px solid #d1d5db;border-radius:.4rem;font-family:inherit"
                    maxlength="64"
                    autocomplete="off">
             <button type="submit"
-                    style="padding:.55rem 1.1rem;background:#0535F5;color:#fff;border:0;border-radius:.4rem;font-weight:700;font-size:.85rem;cursor:pointer;font-family:inherit">
-                <?= $escaper->escapeHtml(__('Search')) ?>
+                    style="padding:.55rem 1.1rem;background:var(--etechflow-vc-accent, #0535F5);color:#fff;border:0;border-radius:.4rem;font-weight:700;font-size:.85rem;cursor:pointer;font-family:inherit">
+                <?= $escaper->escapeHtml($block->getOemButtonText()) ?>
             </button>
         </div>
         <?php /* preserve any vehicle filters when OEM is searched */ ?>
@@ -77,12 +80,12 @@ $eagerLoadImagesCount = 4;
     <?php if (!$hasAnyFilter): ?>
         <div style="padding:60px 0;text-align:center;background:#f7f8fb;border-radius:14px">
             <p style="font-size:1.05rem;color:#374151;font-weight:700;margin:0 0 8px"><?= $escaper->escapeHtml($block->getEmptyStateMessage()) ?></p>
-            <p style="font-size:.85rem;color:#6b7280;margin:0"><?= $escaper->escapeHtml(__('Use the form above to start.')) ?></p>
+            <p style="font-size:.85rem;color:#6b7280;margin:0"><?= $escaper->escapeHtml($block->getUseFormPrompt()) ?></p>
         </div>
     <?php elseif ($count === 0): ?>
         <div style="padding:60px 0;text-align:center;background:#fef2f2;border-radius:14px;border:1px solid #fecaca">
-            <p style="font-size:1.05rem;color:#991b1b;font-weight:700;margin:0 0 8px"><?= $escaper->escapeHtml(__('No products match all your filters.')) ?></p>
-            <p style="font-size:.85rem;color:#6b7280;margin:0"><?= $escaper->escapeHtml(__('Try removing one or two filters — fewer constraints usually find a match.')) ?></p>
+            <p style="font-size:1.05rem;color:#991b1b;font-weight:700;margin:0 0 8px"><?= $escaper->escapeHtml($block->getNoResultsTitle()) ?></p>
+            <p style="font-size:.85rem;color:#6b7280;margin:0"><?= $escaper->escapeHtml($block->getNoResultsHint()) ?></p>
         </div>
     <?php else: ?>
         <p style="font-size:.9rem;color:#374151;font-weight:600;margin:0 0 18px">

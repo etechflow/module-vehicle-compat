@@ -66,17 +66,21 @@ class FitmentBadge extends Template
     /**
      * Customer-facing rendered HTML. Returns escaped strings only.
      *
-     * @return array{prefix:string, fitments:string[], more:int, style:string}
+     * @return array{prefix:string, fitments:string[], more:int, more_text:string, style:string, tooltip:string}
      */
     public function getRenderData(): array
     {
         $fitments = $this->getResolvedFitments();
         $more = max(0, count($fitments) - self::INLINE_LIMIT);
         return [
-            'prefix'   => $this->config->getFitmentBadgePrefix(),
-            'fitments' => array_slice($fitments, 0, self::INLINE_LIMIT),
-            'more'     => $more,
-            'style'    => $this->config->getFitmentBadgeStyle(),
+            'prefix'    => $this->config->getFitmentBadgePrefix(),
+            'fitments'  => array_slice($fitments, 0, self::INLINE_LIMIT),
+            'more'      => $more,
+            // v1.2.1: configurable overflow template with {count} placeholder.
+            'more_text' => $more > 0 ? $this->config->getFitmentOverflow($more) : '',
+            'style'     => $this->config->getFitmentBadgeStyle(),
+            // v1.2.1: optional customer-facing tooltip (empty string = no tooltip).
+            'tooltip'   => $this->config->getFitmentTooltip(),
         ];
     }
 

@@ -11,9 +11,11 @@ if (!$block->isEnabled()) {
 $storageKey = $block->getStorageKey();
 $maxEntries = $block->getMaxEntries();
 ?>
-<div class="etechflow-vc-garage" x-data="etechflowGarage('<?= $escaper->escapeJs($storageKey) ?>', <?= (int) $maxEntries ?>)" x-init="load()" x-cloak>
+<?php $garageTooltip = $block->getGarageTooltip(); ?>
+<div class="etechflow-vc-garage" x-data="etechflowGarage('<?= $escaper->escapeJs($storageKey) ?>', <?= (int) $maxEntries ?>)" x-init="load()" x-cloak
+     <?php if ($garageTooltip !== ''): ?>title="<?= $escaper->escapeHtmlAttr($garageTooltip) ?>"<?php endif; ?>>
     <div class="etechflow-vc-garage__panel">
-        <div class="etechflow-vc-garage__title"><?= $escaper->escapeHtml(__('My Garage')) ?></div>
+        <div class="etechflow-vc-garage__title"><?= $escaper->escapeHtml($block->getGarageTitle()) ?></div>
 
         <!-- v1.1.1: Empty state — render an inviting prompt instead of going invisible.
              Tells the customer the feature exists and how to use it. Configurable copy via
@@ -39,12 +41,13 @@ $maxEntries = $block->getMaxEntries();
                             <button type="button"
                                     @click="remove(idx)"
                                     class="etechflow-vc-garage__remove"
-                                    aria-label="<?= $escaper->escapeHtmlAttr(__('Remove')) ?>">×</button>
+                                    aria-label="<?= $escaper->escapeHtmlAttr($block->getGarageRemoveLabel()) ?>"
+                                    title="<?= $escaper->escapeHtmlAttr($block->getGarageRemoveLabel()) ?>">×</button>
                         </li>
                     </template>
                 </ul>
                 <button type="button" @click="clear()" class="etechflow-vc-garage__clear">
-                    <?= $escaper->escapeHtml(__('Clear Garage')) ?>
+                    <?= $escaper->escapeHtml($block->getGarageClearButton()) ?>
                 </button>
             </div>
         </template>

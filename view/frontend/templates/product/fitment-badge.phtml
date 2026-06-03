@@ -10,12 +10,16 @@ if (!$block->isVisible()) {
 }
 
 $data = $block->getRenderData();
-$prefix   = (string) $data['prefix'];
-$fitments = $data['fitments'];
-$more     = (int) $data['more'];
-$style    = (string) $data['style'];
+$prefix    = (string) $data['prefix'];
+$fitments  = $data['fitments'];
+$more      = (int) $data['more'];
+$moreText  = (string) ($data['more_text'] ?? '');
+$style     = (string) $data['style'];
+$tooltip   = (string) ($data['tooltip'] ?? '');
 ?>
-<div class="etechflow-vc-fitment etechflow-vc-fitment--<?= $escaper->escapeHtmlAttr($style) ?>" role="note">
+<div class="etechflow-vc-fitment etechflow-vc-fitment--<?= $escaper->escapeHtmlAttr($style) ?>"
+     role="note"
+     <?php if ($tooltip !== ''): ?>title="<?= $escaper->escapeHtmlAttr($tooltip) ?>" tabindex="0"<?php endif; ?>>
     <span class="etechflow-vc-fitment__icon" aria-hidden="true">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
@@ -26,8 +30,8 @@ $style    = (string) $data['style'];
         <?php foreach ($fitments as $i => $fitment): ?>
             <span class="etechflow-vc-fitment__item"><?= $escaper->escapeHtml($fitment) ?></span><?php if ($i < count($fitments) - 1 || $more > 0): ?>, <?php endif; ?>
         <?php endforeach; ?>
-        <?php if ($more > 0): ?>
-            <span class="etechflow-vc-fitment__more"><?= $escaper->escapeHtml(__('and %1 more', $more)) ?></span>
+        <?php if ($more > 0 && $moreText !== ''): ?>
+            <span class="etechflow-vc-fitment__more"><?= $escaper->escapeHtml($moreText) ?></span>
         <?php endif; ?>
     </span>
 </div>

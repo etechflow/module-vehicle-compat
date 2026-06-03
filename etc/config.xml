@@ -42,6 +42,21 @@
                 <search_label>Or search by part number</search_label>
                 <search_placeholder>Type part number…</search_placeholder>
             </oem>
+            <polish>
+                <no_results_title>No products match all your filters.</no_results_title>
+                <no_results_hint>Try removing one or two filters — fewer constraints usually find a match.</no_results_hint>
+                <use_form_prompt>Use the form above to start.</use_form_prompt>
+                <no_matches>No matches</no_matches>
+                <dropdown_search_placeholder>Search…</dropdown_search_placeholder>
+                <fitment_overflow_template>and {count} more</fitment_overflow_template>
+                <garage_title>My Garage</garage_title>
+                <garage_clear>Clear Garage</garage_clear>
+                <garage_remove>Remove</garage_remove>
+                <saved_feedback>Saved!</saved_feedback>
+                <sidebar_no_filters>No filters active.</sidebar_no_filters>
+                <oem_button>Search</oem_button>
+                <accent_colour>#0535F5</accent_colour>
+            </polish>
         </etechflow_vehiclecompat>
     </default>
 </config>

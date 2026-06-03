@@ -85,6 +85,15 @@ class FindResults extends Template
     public function getOemSearchLabel(): string { return $this->vcConfig->getOemSearchLabel(); }
     public function getOemSearchPlaceholder(): string { return $this->vcConfig->getOemSearchPlaceholder(); }
 
+    /** v1.2.1 — polish copy + tooltips + accent colour. */
+    public function getNoResultsTitle(): string         { return $this->vcConfig->getNoResultsTitle(); }
+    public function getNoResultsHint(): string          { return $this->vcConfig->getNoResultsHint(); }
+    public function getUseFormPrompt(): string          { return $this->vcConfig->getUseFormPrompt(); }
+    public function getSidebarNoFilters(): string       { return $this->vcConfig->getSidebarNoFilters(); }
+    public function getOemButtonText(): string          { return $this->vcConfig->getOemButtonText(); }
+    public function getOemTooltip(): string             { return $this->vcConfig->getOemTooltip(); }
+    public function getAccentColour(): string           { return $this->vcConfig->getAccentColour(); }
+
     public function getFilterChips(): array
     {
         $conn = $this->resource->getConnection();

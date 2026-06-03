@@ -59,4 +59,11 @@ class Garage extends Template
 
     /** v1.1.1 — Admin-configurable customer-facing copy. */
     public function getGarageEmptyPrompt(): string { return $this->config->getGarageEmptyPrompt(); }
+
+    /** v1.2.1 — polish copy + tooltip + accent colour. */
+    public function getGarageTitle(): string        { return $this->config->getGarageTitle(); }
+    public function getGarageClearButton(): string  { return $this->config->getGarageClearButton(); }
+    public function getGarageRemoveLabel(): string  { return $this->config->getGarageRemoveLabel(); }
+    public function getGarageTooltip(): string      { return $this->config->getGarageTooltip(); }
+    public function getAccentColour(): string       { return $this->config->getAccentColour(); }
 }

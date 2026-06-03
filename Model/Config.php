@@ -52,6 +52,24 @@ class Config
     private const XML_PATH_OEM_SEARCH_LABEL     = 'etechflow_vehiclecompat/oem/search_label';
     private const XML_PATH_OEM_SEARCH_PLACEHOLDER = 'etechflow_vehiclecompat/oem/search_placeholder';
 
+    // v1.2.1 — Storefront copy polish + tooltips + theme colour
+    private const XML_PATH_COPY_NO_RESULTS_TITLE   = 'etechflow_vehiclecompat/polish/no_results_title';
+    private const XML_PATH_COPY_NO_RESULTS_HINT    = 'etechflow_vehiclecompat/polish/no_results_hint';
+    private const XML_PATH_COPY_USE_FORM_PROMPT    = 'etechflow_vehiclecompat/polish/use_form_prompt';
+    private const XML_PATH_COPY_NO_MATCHES         = 'etechflow_vehiclecompat/polish/no_matches';
+    private const XML_PATH_COPY_DROPDOWN_SEARCH    = 'etechflow_vehiclecompat/polish/dropdown_search_placeholder';
+    private const XML_PATH_COPY_FITMENT_OVERFLOW   = 'etechflow_vehiclecompat/polish/fitment_overflow_template';
+    private const XML_PATH_COPY_GARAGE_TITLE       = 'etechflow_vehiclecompat/polish/garage_title';
+    private const XML_PATH_COPY_GARAGE_CLEAR       = 'etechflow_vehiclecompat/polish/garage_clear';
+    private const XML_PATH_COPY_GARAGE_REMOVE      = 'etechflow_vehiclecompat/polish/garage_remove';
+    private const XML_PATH_COPY_SAVED_FEEDBACK     = 'etechflow_vehiclecompat/polish/saved_feedback';
+    private const XML_PATH_COPY_SIDEBAR_NO_FILTERS = 'etechflow_vehiclecompat/polish/sidebar_no_filters';
+    private const XML_PATH_COPY_OEM_BUTTON         = 'etechflow_vehiclecompat/polish/oem_button';
+    private const XML_PATH_TOOLTIP_FITMENT         = 'etechflow_vehiclecompat/polish/tooltip_fitment';
+    private const XML_PATH_TOOLTIP_GARAGE          = 'etechflow_vehiclecompat/polish/tooltip_garage';
+    private const XML_PATH_TOOLTIP_OEM             = 'etechflow_vehiclecompat/polish/tooltip_oem';
+    private const XML_PATH_ACCENT_COLOUR           = 'etechflow_vehiclecompat/polish/accent_colour';
+
     /** Allowed badge style modifiers — clamped against this whitelist. */
     private const BADGE_STYLES = ['success', 'info', 'warning', 'neutral'];
 
@@ -309,5 +327,154 @@ class Config
             'Type part number…',
             $storeId
         );
+    }
+
+    // --------------------------------------------------------------------
+    // v1.2.1 — Storefront copy polish. Every remaining customer-visible
+    // string that v1.1.1 didn't cover, plus 3 inline tooltip strings.
+    // --------------------------------------------------------------------
+
+    public function getNoResultsTitle(?int $storeId = null): string
+    {
+        return $this->labelOrDefault(
+            self::XML_PATH_COPY_NO_RESULTS_TITLE,
+            'No products match all your filters.',
+            $storeId
+        );
+    }
+
+    public function getNoResultsHint(?int $storeId = null): string
+    {
+        return $this->labelOrDefault(
+            self::XML_PATH_COPY_NO_RESULTS_HINT,
+            'Try removing one or two filters — fewer constraints usually find a match.',
+            $storeId
+        );
+    }
+
+    public function getUseFormPrompt(?int $storeId = null): string
+    {
+        return $this->labelOrDefault(
+            self::XML_PATH_COPY_USE_FORM_PROMPT,
+            'Use the form above to start.',
+            $storeId
+        );
+    }
+
+    public function getNoMatchesText(?int $storeId = null): string
+    {
+        return $this->labelOrDefault(
+            self::XML_PATH_COPY_NO_MATCHES,
+            'No matches',
+            $storeId
+        );
+    }
+
+    public function getDropdownSearchPlaceholder(?int $storeId = null): string
+    {
+        return $this->labelOrDefault(
+            self::XML_PATH_COPY_DROPDOWN_SEARCH,
+            'Search…',
+            $storeId
+        );
+    }
+
+    /**
+     * Template for the PDP fitment badge overflow text. Supports the
+     * `{count}` placeholder. Default: "and {count} more".
+     */
+    public function getFitmentOverflow(int $count, ?int $storeId = null): string
+    {
+        $template = $this->labelOrDefault(
+            self::XML_PATH_COPY_FITMENT_OVERFLOW,
+            'and {count} more',
+            $storeId
+        );
+        return strtr($template, ['{count}' => (string) $count]);
+    }
+
+    public function getGarageTitle(?int $storeId = null): string
+    {
+        return $this->labelOrDefault(self::XML_PATH_COPY_GARAGE_TITLE, 'My Garage', $storeId);
+    }
+
+    public function getGarageClearButton(?int $storeId = null): string
+    {
+        return $this->labelOrDefault(self::XML_PATH_COPY_GARAGE_CLEAR, 'Clear Garage', $storeId);
+    }
+
+    public function getGarageRemoveLabel(?int $storeId = null): string
+    {
+        return $this->labelOrDefault(self::XML_PATH_COPY_GARAGE_REMOVE, 'Remove', $storeId);
+    }
+
+    public function getSavedFeedback(?int $storeId = null): string
+    {
+        return $this->labelOrDefault(self::XML_PATH_COPY_SAVED_FEEDBACK, 'Saved!', $storeId);
+    }
+
+    public function getSidebarNoFilters(?int $storeId = null): string
+    {
+        return $this->labelOrDefault(
+            self::XML_PATH_COPY_SIDEBAR_NO_FILTERS,
+            'No filters active.',
+            $storeId
+        );
+    }
+
+    public function getOemButtonText(?int $storeId = null): string
+    {
+        return $this->labelOrDefault(self::XML_PATH_COPY_OEM_BUTTON, 'Search', $storeId);
+    }
+
+    /** v1.2.1 — Customer-facing tooltips (rendered as title=""). Optional;
+     *  blank = no tooltip rendered. */
+    public function getFitmentTooltip(?int $storeId = null): string
+    {
+        $value = (string) $this->scopeConfig->getValue(
+            self::XML_PATH_TOOLTIP_FITMENT,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        return trim($value);
+    }
+
+    public function getGarageTooltip(?int $storeId = null): string
+    {
+        $value = (string) $this->scopeConfig->getValue(
+            self::XML_PATH_TOOLTIP_GARAGE,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        return trim($value);
+    }
+
+    public function getOemTooltip(?int $storeId = null): string
+    {
+        $value = (string) $this->scopeConfig->getValue(
+            self::XML_PATH_TOOLTIP_OEM,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        return trim($value);
+    }
+
+    /**
+     * v1.2.1 — Accent colour for buttons + filter chips. Default is the
+     * eTechFlow blue (#0535F5). Validated to a 6-digit hex; anything
+     * malformed falls back to the default. Surfaces via a CSS custom
+     * property in templates so theme overrides also work.
+     */
+    public function getAccentColour(?int $storeId = null): string
+    {
+        $value = trim((string) $this->scopeConfig->getValue(
+            self::XML_PATH_ACCENT_COLOUR,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        ));
+        if (preg_match('/^#?[0-9a-f]{6}$/i', $value)) {
+            return $value[0] === '#' ? $value : ('#' . $value);
+        }
+        return '#0535F5';
     }
 }

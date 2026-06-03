@@ -404,6 +404,139 @@
                 </field>
             </group>
 
+            <group id="polish" translate="label" type="text" sortOrder="38"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Storefront Copy Polish + Tooltips (v1.2.1)</label>
+                <comment><![CDATA[
+                    Override the remaining customer-visible strings that v1.1.1 didn't
+                    expose — empty states, dropdown placeholders, garage actions, no-results
+                    messaging. Plus three customer-facing tooltips (rendered as title="")
+                    that give shoppers a hover hint on key UI elements. And a single
+                    accent colour override so the module's filter chips + buttons match
+                    your brand.
+                ]]></comment>
+                <field id="no_results_title" translate="label comment" type="text"
+                       sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>"No Results" Title</label>
+                    <comment>Shown when filters return zero products. Default: "No products match all your filters."</comment>
+                </field>
+                <field id="no_results_hint" translate="label comment" type="text"
+                       sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>"No Results" Hint</label>
+                    <comment>Secondary line under the no-results title. Default: "Try removing one or two filters — fewer constraints usually find a match."</comment>
+                </field>
+                <field id="use_form_prompt" translate="label comment" type="text"
+                       sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>"Use the Form" Prompt</label>
+                    <comment>Secondary line in the empty-state. Default: "Use the form above to start."</comment>
+                </field>
+                <field id="no_matches" translate="label comment" type="text"
+                       sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Dropdown "No Matches"</label>
+                    <comment>Shown when a typed search yields no items in a dropdown. Default: "No matches"</comment>
+                </field>
+                <field id="dropdown_search_placeholder" translate="label comment" type="text"
+                       sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Dropdown Search Placeholder</label>
+                    <comment>Placeholder in each dropdown's search input. Default: "Search…"</comment>
+                </field>
+                <field id="fitment_overflow_template" translate="label comment" type="text"
+                       sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>PDP Fitment Badge Overflow</label>
+                    <comment><![CDATA[
+                        When a product fits more than 3 vehicles, the badge shows a "+N more"
+                        marker. Default: <em>and {count} more</em>. Supports the
+                        <code>{count}</code> placeholder. Phone shop: "and {count} other phones".
+                    ]]></comment>
+                </field>
+                <field id="garage_title" translate="label comment" type="text"
+                       sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Garage Widget Title</label>
+                    <comment>Default: "My Garage". Watch shop: "My Watches". Phone shop: "My Phones".</comment>
+                </field>
+                <field id="garage_clear" translate="label comment" type="text"
+                       sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Garage Clear-All Button</label>
+                    <comment>Default: "Clear Garage". Watch shop: "Clear All Watches".</comment>
+                </field>
+                <field id="garage_remove" translate="label comment" type="text"
+                       sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Garage Remove Button (aria-label)</label>
+                    <comment>Tooltip for the "X" remove button. Default: "Remove"</comment>
+                </field>
+                <field id="saved_feedback" translate="label comment" type="text"
+                       sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>"Saved!" Confirmation Text</label>
+                    <comment>Shown for ~1.5s after a successful save-to-garage. Default: "Saved!"</comment>
+                </field>
+                <field id="sidebar_no_filters" translate="label comment" type="text"
+                       sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Sidebar "No Filters" Message</label>
+                    <comment>Shown in the Find page sidebar when no filters are picked. Default: "No filters active."</comment>
+                </field>
+                <field id="oem_button" translate="label comment" type="text"
+                       sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>OEM Search Submit Button</label>
+                    <comment>Text on the submit button next to the OEM search input. Default: "Search"</comment>
+                </field>
+
+                <field id="tooltip_fitment" translate="label comment tooltip" type="textarea"
+                       sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>PDP Fitment Badge Tooltip</label>
+                    <tooltip>Optional hover tooltip on the "Fits:" badge.</tooltip>
+                    <comment><![CDATA[
+                        Hover tooltip (HTML title="") on the PDP fitment badge.<br/>
+                        Optional. Leave blank to render no tooltip. Suggested text:<br/>
+                        <em>"This list shows the vehicles this part fits. Match your car's
+                        Make, Model and Year to confirm."</em><br/>
+                        Phone shop: <em>"Compatible with the phones listed. Match your
+                        phone model to confirm fit."</em>
+                    ]]></comment>
+                </field>
+                <field id="tooltip_garage" translate="label comment tooltip" type="textarea"
+                       sortOrder="210" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>My Garage Tooltip</label>
+                    <tooltip>Optional hover tooltip on the My Garage widget title.</tooltip>
+                    <comment><![CDATA[
+                        Hover tooltip on the My Garage widget. Suggested:<br/>
+                        <em>"Vehicles you've saved for quick reload. Click any vehicle
+                        to filter the catalog by that fit. Saved per browser; sync'd
+                        across devices when logged in."</em>
+                    ]]></comment>
+                </field>
+                <field id="tooltip_oem" translate="label comment tooltip" type="textarea"
+                       sortOrder="220" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>OEM Search Tooltip</label>
+                    <tooltip>Optional hover tooltip on the OEM search input field.</tooltip>
+                    <comment><![CDATA[
+                        Hover tooltip on the OEM search box. Suggested:<br/>
+                        <em>"Paste a part number (OEM, MPN, or your store's SKU) to find
+                        the matching product directly. Faster than clicking through the
+                        vehicle dropdowns if you already know the number."</em>
+                    ]]></comment>
+                </field>
+
+                <field id="accent_colour" translate="label comment tooltip" type="text"
+                       sortOrder="300" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Accent Colour (hex)</label>
+                    <validate>validate-not-empty</validate>
+                    <tooltip>Hex colour for filter chips + buttons. Default #0535F5 (eTechFlow blue).</tooltip>
+                    <comment><![CDATA[
+                        Six-digit hex colour used for filter chips on the Find page,
+                        the OEM Search submit button, and Garage links. Default:
+                        <code>#0535F5</code> (eTechFlow blue).<br/>
+                        Set to match your brand. Examples:<br/>
+                        - <code>#16A34A</code> (green)<br/>
+                        - <code>#DC2626</code> (red)<br/>
+                        - <code>#7C3AED</code> (purple)<br/>
+                        Anything that doesn't parse as a 6-digit hex falls back to the
+                        default. Surfaces via a CSS custom property
+                        <code>--etechflow-vc-accent</code> so your theme can also
+                        override it in CSS.
+                    ]]></comment>
+                </field>
+            </group>
+
             <group id="garage" translate="label" type="text" sortOrder="40"
                    showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Customer Garage (v1.1.0)</label>
