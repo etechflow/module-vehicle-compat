@@ -16,6 +16,19 @@
                 <label_year>Year</label_year>
                 <label_part>Parts Required</label_part>
             </general>
+            <pdp_badge>
+                <enabled>0</enabled>
+                <prefix>Fits:</prefix>
+                <style>success</style>
+            </pdp_badge>
+            <seo_urls>
+                <enabled>0</enabled>
+                <prefix>parts</prefix>
+            </seo_urls>
+            <garage>
+                <enabled>0</enabled>
+                <max_entries>3</max_entries>
+            </garage>
         </etechflow_vehiclecompat>
     </default>
 </config>

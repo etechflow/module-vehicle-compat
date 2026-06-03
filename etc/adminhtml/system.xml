@@ -192,6 +192,123 @@
                     ]]></comment>
                 </field>
             </group>
+
+            <group id="pdp_badge" translate="label" type="text" sortOrder="20"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>PDP Fitment Badge (v1.1.0)</label>
+                <field id="enabled" translate="label comment tooltip" type="select"
+                       sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show Fitment Badge on Product Page</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <tooltip>Yes = render a "Fits: BMW 3 Series 2018-2023" badge under the price on every PDP that has fitment data.</tooltip>
+                    <comment><![CDATA[
+                        Renders a coloured "Fits: …" block right under the product price on
+                        the PDP for any product tagged with vehicle compatibility data.<br/><br/>
+                        <strong>Yes</strong> = badge renders when product has fitment data.<br/>
+                        <strong>No</strong> (default) = no badge. Existing v1.0.x installs see
+                        no change unless they opt in.
+                    ]]></comment>
+                </field>
+                <field id="prefix" translate="label comment tooltip" type="text"
+                       sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Badge Prefix Text</label>
+                    <tooltip>Bold label before the list of compatible vehicles. Default "Fits:".</tooltip>
+                    <comment><![CDATA[
+                        Bold text shown before the vehicle list. Default <em>Fits:</em>. Alternatives:<br/>
+                        - "Compatible with:" — formal<br/>
+                        - "Made for:" — friendly<br/>
+                        - "Bilingual stores": translate via Magento i18n.
+                    ]]></comment>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+                <field id="style" translate="label comment tooltip" type="select"
+                       sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Badge Style</label>
+                    <source_model>ETechFlow\VehicleCompat\Model\Source\BadgeStyle</source_model>
+                    <tooltip>Visual treatment: success (green), info (blue), warning (amber), neutral (grey).</tooltip>
+                    <comment><![CDATA[
+                        <strong>Success</strong> (green) — default, reads as a positive "yes this fits"<br/>
+                        <strong>Info</strong> (blue) — neutral informational tone<br/>
+                        <strong>Warning</strong> (amber) — attention-grabbing<br/>
+                        <strong>Neutral</strong> (grey) — minimal
+                    ]]></comment>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+            </group>
+
+            <group id="seo_urls" translate="label" type="text" sortOrder="30"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>SEO-Friendly URLs (v1.1.0)</label>
+                <field id="enabled" translate="label comment tooltip" type="select"
+                       sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable SEO URLs</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <tooltip>Yes = also accept /parts/bmw/3-series/2020/brake-pads style URLs.</tooltip>
+                    <comment><![CDATA[
+                        Adds a custom router that maps SEO-friendly paths to the Part Finder:<br/>
+                        <code>/parts/bmw/3-series/2020/brake-pads</code><br/>
+                        instead of the default<br/>
+                        <code>/vehiclecompat/find/index?make=42&amp;model=87&amp;year=2020&amp;part=12</code><br/><br/>
+                        Better SEO. Better social-share previews. Better crawlability.<br/><br/>
+                        <strong>Yes</strong> = both old and new URLs work — old links don't break.<br/>
+                        <strong>No</strong> (default) = only the query-string URLs work. Existing
+                        v1.0.x installs see no change unless they opt in.
+                    ]]></comment>
+                </field>
+                <field id="prefix" translate="label comment tooltip" type="text"
+                       sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>URL Prefix</label>
+                    <tooltip>The first segment of the SEO URL. Default "parts". Use "fitment", "compat", "for", etc.</tooltip>
+                    <comment><![CDATA[
+                        The first segment after the domain. Default: <code>parts</code> →
+                        <code>/parts/bmw/3-series/…</code><br/>
+                        Common alternatives:<br/>
+                        - <code>fitment</code> → <code>/fitment/bmw/…</code><br/>
+                        - <code>for</code> → <code>/for/bmw/…</code> (very short, reads naturally)<br/>
+                        - <code>compatibility</code> → longer but explicit<br/><br/>
+                        Sanitised to lowercase a–z, 0–9, and dashes. Anything else is stripped.
+                        Invalid values fall back to <code>parts</code>.
+                    ]]></comment>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+            </group>
+
+            <group id="garage" translate="label" type="text" sortOrder="40"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Customer Garage (v1.1.0)</label>
+                <field id="enabled" translate="label comment tooltip" type="select"
+                       sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Customer Garage</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <tooltip>Yes = customers can save their vehicle for one-click reload across sessions.</tooltip>
+                    <comment><![CDATA[
+                        Adds a "My Garage" feature where customers can save the vehicle they
+                        picked in the Part Finder. Next time they visit, their vehicles are
+                        already there — one click reloads the Part Finder with that vehicle.
+                        Top-3 conversion driver for parts e-commerce.<br/><br/>
+                        <strong>v1.1.0 MVP</strong>: localStorage-based (per-browser).
+                        Guest + logged-in customer get the same experience.<br/>
+                        <strong>v1.2.0+</strong>: customer attribute storage for logged-in
+                        users (syncs across devices).<br/><br/>
+                        Merchants place the widget where they want via layout XML or CMS block:<br/>
+                        <code>{{block class="ETechFlow\VehicleCompat\Block\Garage"
+                          template="ETechFlow_VehicleCompat::garage/widget.phtml"}}</code><br/><br/>
+                        <strong>No</strong> (default) = widget renders nothing even if placed.
+                    ]]></comment>
+                </field>
+                <field id="max_entries" translate="label comment tooltip" type="text"
+                       sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Maximum Vehicles per Customer</label>
+                    <validate>validate-number validate-greater-than-zero</validate>
+                    <tooltip>How many vehicles each customer can save. Default 3. Clamped 1-10.</tooltip>
+                    <comment><![CDATA[
+                        How many vehicles each customer can save. Default <strong>3</strong>.<br/>
+                        Anything below 1 or above 10 is clamped to safe bounds. Most stores find
+                        3 is the sweet spot — covers "my car, my wife's car, my work van".
+                    ]]></comment>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+            </group>
         </section>
     </system>
 </config>

@@ -1,5 +1,168 @@
 # Changelog — ETechFlow_VehicleCompat
 
+## [1.1.0] — 2026-06-03 — Amasty-competitor feature set: PDP fitment badge, SEO URLs, customer garage, universal positioning
+
+Four major additions that turn this from "Vehicle Compatibility v1.0"
+into a credible competitor to Amasty Product Parts Finder (~$399).
+All features are opt-in via admin config — defaults preserve v1.0.x
+behaviour exactly, so existing installs see no change unless they
+intentionally enable one.
+
+### Added
+
+#### 1. PDP fitment badge
+Renders a coloured "Fits: BMW 3 Series 2018-2023" block under the price
+on every product detail page where the product has vehicle compatibility
+data assigned. The most-requested Amasty-parity feature — signals
+"yes this fits your car" right at the purchase-decision moment.
+
+- **New block**: `Block/Product/FitmentBadge` — resolves the product's
+  `vehicle_compat_data` JSON attribute against the Make/Model tables,
+  formats human-readable strings ("BMW 3 Series 2018-2023" — year
+  ranges collapsed when contiguous, listed individually otherwise),
+  and de-dupes across `parts_required` entries.
+- **New template**: `view/frontend/templates/product/fitment-badge.phtml`
+  — inline-styled HTML that survives email clients and theme overrides.
+- **New layout**: `view/frontend/layout/catalog_product_view.xml` —
+  injects the badge into `product.info.main` after `product.info.price`.
+- **Admin config** under *Stores → Configuration → eTechFlow → Vehicle
+  Compatibility → PDP Fitment Badge*:
+  - Show Fitment Badge on Product Page (Yes/No, default **No**)
+  - Badge Prefix Text (default "Fits:" — set to "Compatible with:" or
+    "Made for:" for different tones)
+  - Badge Style (success/info/warning/neutral — colour treatment)
+- **Inline limit**: max 3 vehicles per badge; surplus shown as
+  "and N more". Keeps PDP layouts clean for parts that fit dozens of
+  vehicles.
+
+#### 2. SEO-friendly URLs
+Maps `/parts/bmw/3-series/2020/brake-pads` to the Part Finder Find
+action. Massive SEO improvement over query-string URLs — Google ranks
+slug-based URLs significantly better, social-share previews look
+clean, link sharing is human-readable.
+
+- **New router**: `Controller/Router/FitmentRouter` — implements
+  `Magento\Framework\App\RouterInterface`. Matches the configured
+  prefix + Make/Model/Year/Part slugs, resolves slugs back to IDs via
+  case-insensitive name lookup, forwards to `vehiclecompat/find/index`
+  with proper params.
+- **New DI**: `etc/frontend/di.xml` — registers the router with
+  sortOrder 30 (before CMS router but after standard).
+- **Backward-compatible**: when enabled, BOTH old query-string URLs
+  AND new path-based URLs work — old shared links don't break.
+- **Slug-tolerant**: "3-series" matches "3 Series", "land-rover"
+  matches "Land Rover" (case-insensitive, space → dash normalisation).
+- **Admin config** under *Stores → Configuration → eTechFlow → Vehicle
+  Compatibility → SEO-Friendly URLs*:
+  - Enable SEO URLs (Yes/No, default **No**)
+  - URL Prefix (default "parts" — use "fitment" / "for" / "compatibility"
+    for different vibes; lowercase alphanumeric + dash only, anything
+    else stripped, invalid values fall back to "parts")
+
+#### 3. Customer "My Garage" widget
+Customers save their vehicle for one-click reload across sessions.
+Top-3 conversion driver in parts e-commerce per Amasty's own marketing.
+
+- **New block**: `Block/Garage` — renders the widget when enabled.
+- **New template**: `view/frontend/templates/garage/widget.phtml` —
+  Alpine.js-driven, reads from `localStorage`, shows saved vehicles
+  with one-click reload + individual remove + clear-all.
+- **v1.1.0 MVP**: localStorage-based. Guest + logged-in customer get
+  the same experience. v1.2.0+ will add customer attribute storage
+  for logged-in users so the garage syncs across devices.
+- **Merchant placement**: any layout XML reference or CMS block — the
+  README documents the standard placement patterns (header, sidebar,
+  hero, account page).
+- **Auto-saves on Part Finder use**: the existing Alpine store
+  `vehicleCompatSel` integrates with the garage automatically — no
+  extra clicks for the customer.
+- **Per-store-view scoped**: storage key includes the store ID so
+  different stores don't share garages (different catalogs, different
+  vehicle IDs).
+- **Admin config** under *Stores → Configuration → eTechFlow → Vehicle
+  Compatibility → Customer Garage*:
+  - Enable Customer Garage (Yes/No, default **No**)
+  - Maximum Vehicles per Customer (default **3** — clamped 1-10;
+    sweet spot for "my car, my wife's car, my work van")
+
+#### 4. Universal positioning
+The `composer.json` description now leads with "Universal Product
+Fitment Finder for Magento 2" instead of "Vehicle Compatibility".
+The same code that already works for any fitment domain via the
+v1.0.2 configurable labels is now positioned for it. Sells to:
+
+- Automotive (still the primary)
+- Motorcycle / marine / RV / ATV / bicycle parts (already worked)
+- Phone cases (Make→Brand, hide Year, Earliest Year=2007)
+- Watch straps (Brand/Watch/<hide year>/Strap Size)
+- Printer cartridges, appliance parts, industrial fittings —
+  anywhere the customer asks "will this fit my X?"
+
+### Added (supporting infrastructure)
+
+- `Model/Source/BadgeStyle.php` — source model for the PDP badge
+  style dropdown (success / info / warning / neutral).
+- Eight new `Config` getters: `isShowFitmentBadgeOnPdp()`,
+  `getFitmentBadgePrefix()`, `getFitmentBadgeStyle()`,
+  `isSeoUrlsEnabled()`, `getSeoUrlPrefix()`, `isSavedGarageEnabled()`,
+  `getGarageMaxEntries()`, and the BADGE_STYLES whitelist for
+  clamping.
+- `Setup/Patch/Data/V110ReleaseMarker.php` — continues the always-a-
+  patch discipline.
+
+### Not changed
+
+- **No schema changes** — drop-in upgrade from 1.0.3.
+- **No breaking changes** — every new feature is opt-in (default off).
+  Existing v1.0.x installs that don't touch the new config groups see
+  zero behaviour change.
+- **No API changes** — public block + service methods unchanged.
+
+### Migration
+
+```bash
+composer require etechflow/module-vehicle-compat:^1.1.0
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento setup:static-content:deploy -f
+bin/magento cache:flush
+```
+
+Pre-flight check:
+```sql
+SELECT module, schema_version, data_version FROM setup_module
+WHERE module='ETechFlow_VehicleCompat';
+```
+Both should read `1.1.0`. If `data_version` is stale, re-run
+`setup:upgrade` — do NOT flush cache yet.
+
+To opt in to v1.1.0 features:
+- **PDP badge**: *Stores → Configuration → eTechFlow → Vehicle
+  Compatibility → PDP Fitment Badge → Enable* = Yes
+- **SEO URLs**: *...SEO-Friendly URLs → Enable* = Yes (and decide on
+  a prefix — "parts" is a safe default)
+- **Garage**: *...Customer Garage → Enable* = Yes (and place the
+  widget in your theme's layout XML or a CMS block)
+
+### Competitive positioning
+
+| Feature | Amasty PPF (~$399) | This module (v1.1.0) |
+|---|---|---|
+| Universal fitment | ✅ | ✅ (since v1.0.2) |
+| Configurable labels | ✅ | ✅ (since v1.0.2) |
+| Multi-axis (2-5 levels) | ✅ | ⚠️ Fixed 4 axes (Make/Model/Year/Part) |
+| PDP fitment badge | ✅ | ✅ |
+| SEO URLs | ✅ | ✅ |
+| Saved garage | ✅ | ✅ (localStorage MVP) |
+| Customer-attribute garage sync | ✅ | v1.2.0 |
+| CSV import | ✅ | ✅ |
+| OEM/part-number search | ✅ Pro | v1.3.0 |
+| Multiple finders per store | ✅ | v1.3.0 |
+
+Credible alternative at a fraction of the price.
+
+---
+
 ## [1.0.3] — 2026-06-03 — Restore docs accidentally pruned during v1.0.2 publish-repo sync
 
 The v1.0.2 release shipped clean code but the publish-repo rsync

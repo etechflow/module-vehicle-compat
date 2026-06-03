@@ -26,6 +26,22 @@ class Config
     private const XML_PATH_LABEL_YEAR           = 'etechflow_vehiclecompat/general/label_year';
     private const XML_PATH_LABEL_PART           = 'etechflow_vehiclecompat/general/label_part';
 
+    // v1.1.0 — PDP fitment badge
+    private const XML_PATH_SHOW_PDP_BADGE       = 'etechflow_vehiclecompat/pdp_badge/enabled';
+    private const XML_PATH_PDP_BADGE_PREFIX     = 'etechflow_vehiclecompat/pdp_badge/prefix';
+    private const XML_PATH_PDP_BADGE_STYLE      = 'etechflow_vehiclecompat/pdp_badge/style';
+
+    // v1.1.0 — SEO URLs
+    private const XML_PATH_SEO_URLS_ENABLED     = 'etechflow_vehiclecompat/seo_urls/enabled';
+    private const XML_PATH_SEO_URL_PREFIX       = 'etechflow_vehiclecompat/seo_urls/prefix';
+
+    // v1.1.0 — Saved garage
+    private const XML_PATH_GARAGE_ENABLED       = 'etechflow_vehiclecompat/garage/enabled';
+    private const XML_PATH_GARAGE_MAX_ENTRIES   = 'etechflow_vehiclecompat/garage/max_entries';
+
+    /** Allowed badge style modifiers — clamped against this whitelist. */
+    private const BADGE_STYLES = ['success', 'info', 'warning', 'neutral'];
+
     public function __construct(
         private readonly ScopeConfigInterface $scopeConfig
     ) {
@@ -104,5 +120,81 @@ class Config
         $value = (string) $this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId);
         $value = trim($value);
         return $value !== '' ? $value : $default;
+    }
+
+    /** v1.1.0 — should the PDP "This fits:" badge render? Default off. */
+    public function isShowFitmentBadgeOnPdp(?int $storeId = null): bool
+    {
+        return $this->scopeConfig->isSetFlag(
+            self::XML_PATH_SHOW_PDP_BADGE,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    public function getFitmentBadgePrefix(?int $storeId = null): string
+    {
+        return $this->labelOrDefault(self::XML_PATH_PDP_BADGE_PREFIX, 'Fits:', $storeId);
+    }
+
+    /** Style modifier — clamped to BADGE_STYLES whitelist. */
+    public function getFitmentBadgeStyle(?int $storeId = null): string
+    {
+        $value = (string) $this->scopeConfig->getValue(
+            self::XML_PATH_PDP_BADGE_STYLE,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        return in_array($value, self::BADGE_STYLES, true) ? $value : 'success';
+    }
+
+    /** v1.1.0 — should SEO-friendly URLs route Part Finder requests? Default off. */
+    public function isSeoUrlsEnabled(?int $storeId = null): bool
+    {
+        return $this->scopeConfig->isSetFlag(
+            self::XML_PATH_SEO_URLS_ENABLED,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    /**
+     * URL prefix for SEO routes. Default "parts" → /parts/bmw/3-series/2020/brake-pads.
+     * Sanitised to lowercase alphanumeric + dash; empty or unsafe values
+     * fall back to "parts".
+     */
+    public function getSeoUrlPrefix(?int $storeId = null): string
+    {
+        $value = (string) $this->scopeConfig->getValue(
+            self::XML_PATH_SEO_URL_PREFIX,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        $value = strtolower(trim($value));
+        $value = preg_replace('/[^a-z0-9\-]/', '', $value) ?: '';
+        return $value !== '' ? $value : 'parts';
+    }
+
+    /** v1.1.0 — should the My Garage widget render when placed? Default off. */
+    public function isSavedGarageEnabled(?int $storeId = null): bool
+    {
+        return $this->scopeConfig->isSetFlag(
+            self::XML_PATH_GARAGE_ENABLED,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    /** Max vehicles a customer can save. Default 3. Clamped to 1-10. */
+    public function getGarageMaxEntries(?int $storeId = null): int
+    {
+        $value = (int) $this->scopeConfig->getValue(
+            self::XML_PATH_GARAGE_MAX_ENTRIES,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        if ($value < 1) { return 3; }
+        if ($value > 10) { return 10; }
+        return $value;
     }
 }
