@@ -60,8 +60,30 @@ class FindResults extends Template
         return ((int)$this->request->getParam('make_id') > 0)
             || ((int)$this->request->getParam('model_id') > 0)
             || ((int)$this->request->getParam('year') > 0)
-            || ((int)$this->request->getParam('part_id') > 0);
+            || ((int)$this->request->getParam('part_id') > 0)
+            || $this->getOemTerm() !== '';
     }
+
+    /**
+     * v1.2.0 — Sanitised OEM/part-number search term from the request.
+     * Empty string if none provided or stripped to nothing.
+     */
+    public function getOemTerm(): string
+    {
+        if (!$this->vcConfig->isOemSearchEnabled()) {
+            return '';
+        }
+        $raw = (string) $this->request->getParam('oem', '');
+        // Strip everything except alphanumerics, dash, dot, slash, underscore — common
+        // characters in part numbers (e.g. "12-345/678.A"). Prevents LIKE-injection
+        // even though we parameterise.
+        $clean = preg_replace('/[^a-z0-9\-_.\/]/i', '', $raw) ?: '';
+        return mb_substr($clean, 0, 64);
+    }
+
+    public function isOemSearchEnabled(): bool { return $this->vcConfig->isOemSearchEnabled(); }
+    public function getOemSearchLabel(): string { return $this->vcConfig->getOemSearchLabel(); }
+    public function getOemSearchPlaceholder(): string { return $this->vcConfig->getOemSearchPlaceholder(); }
 
     public function getFilterChips(): array
     {
@@ -122,6 +144,23 @@ class FindResults extends Template
         }
         if ($modelId > 0) {
             $collection->addAttributeToFilter('vehicle_compat_data', ['like' => '%"model_id":' . $modelId . ',%']);
+        }
+
+        // v1.2.0 — OEM/part-number search. When a search term is present,
+        // OR-filter across every configured attribute code (default: just `sku`,
+        // can be ["sku", "mpn", "manufacturer_part_number", "custom_oem"] etc).
+        // This is an INTERSECT with any vehicle filters above — narrow by both.
+        $oemTerm = $this->getOemTerm();
+        if ($oemTerm !== '') {
+            $codes = $this->vcConfig->getOemAttributeCodes();
+            $filters = [];
+            foreach ($codes as $code) {
+                $filters[] = ['attribute' => $code, 'like' => '%' . $oemTerm . '%'];
+            }
+            if ($filters !== []) {
+                // Magento collection: addAttributeToFilter with array means OR.
+                $collection->addAttributeToFilter($filters);
+            }
         }
 
         if ($year > 0 || ($makeId > 0 && $modelId > 0)) {

@@ -348,6 +348,62 @@
                 </field>
             </group>
 
+            <group id="oem" translate="label" type="text" sortOrder="35"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>OEM / Part-Number Search (v1.2.0)</label>
+                <comment><![CDATA[
+                    Adds a "Or search by part number" input on the Find page so
+                    customers can paste an OEM / MPN number and find matching products
+                    directly (in addition to the Make/Model/Year/Part cascade).
+                ]]></comment>
+                <field id="enabled" translate="label comment tooltip" type="select"
+                       sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable OEM Search</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <tooltip>Yes = customers can paste a part number into a search box on the Find page.</tooltip>
+                    <comment><![CDATA[
+                        <strong>Yes</strong> = an "Or search by part number" input renders on the
+                        Find page. Customer pastes an OEM/MPN code, the catalog filters to products
+                        whose configured attribute(s) LIKE-match the term.<br/>
+                        <strong>No</strong> (default) = no input renders. The `?oem=...` query
+                        param is also ignored.
+                    ]]></comment>
+                </field>
+                <field id="attribute_codes" translate="label comment tooltip" type="text"
+                       sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Attribute Codes to Search</label>
+                    <tooltip>Comma-separated product attribute codes. Default "sku".</tooltip>
+                    <comment><![CDATA[
+                        Which product attributes the OEM search filters against. Comma-separated
+                        attribute codes — accepts a–z, 0–9, underscore only.<br/>
+                        Default: <code>sku</code><br/>
+                        Common alternatives if you have custom attributes:<br/>
+                        - <code>sku, mpn</code><br/>
+                        - <code>sku, manufacturer_part_number, custom_oem</code><br/>
+                        Each code becomes an OR clause; the customer's term matches if it appears
+                        in ANY of the configured attributes.
+                    ]]></comment>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+                <field id="search_label" translate="label comment tooltip" type="text"
+                       sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Search Box Label</label>
+                    <tooltip>Customer-facing label above the search box. Default "Or search by part number".</tooltip>
+                    <comment><![CDATA[
+                        Label rendered above the OEM search input. Default:
+                        <em>Or search by part number</em>.<br/>
+                        Phone-case shops: "Or search by model number".<br/>
+                        Watch shops: "Or search by reference number".
+                    ]]></comment>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+                <field id="search_placeholder" translate="label comment tooltip" type="text"
+                       sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Search Box Placeholder</label>
+                    <tooltip>Placeholder text inside the input field. Default "Type part number…".</tooltip>
+                </field>
+            </group>
+
             <group id="garage" translate="label" type="text" sortOrder="40"
                    showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Customer Garage (v1.1.0)</label>

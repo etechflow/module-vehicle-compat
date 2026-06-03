@@ -36,6 +36,12 @@
                 <save_button_text>Save Selection</save_button_text>
                 <garage_empty_prompt>Save a selection here for one-click reload later.</garage_empty_prompt>
             </copy>
+            <oem>
+                <enabled>0</enabled>
+                <attribute_codes>sku</attribute_codes>
+                <search_label>Or search by part number</search_label>
+                <search_placeholder>Type part number…</search_placeholder>
+            </oem>
         </etechflow_vehiclecompat>
     </default>
 </config>

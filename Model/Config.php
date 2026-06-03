@@ -46,6 +46,12 @@ class Config
     private const XML_PATH_SAVE_BUTTON_TEXT     = 'etechflow_vehiclecompat/copy/save_button_text';
     private const XML_PATH_GARAGE_EMPTY_PROMPT  = 'etechflow_vehiclecompat/copy/garage_empty_prompt';
 
+    // v1.2.0 — OEM / part-number search
+    private const XML_PATH_OEM_ENABLED          = 'etechflow_vehiclecompat/oem/enabled';
+    private const XML_PATH_OEM_ATTRIBUTES       = 'etechflow_vehiclecompat/oem/attribute_codes';
+    private const XML_PATH_OEM_SEARCH_LABEL     = 'etechflow_vehiclecompat/oem/search_label';
+    private const XML_PATH_OEM_SEARCH_PLACEHOLDER = 'etechflow_vehiclecompat/oem/search_placeholder';
+
     /** Allowed badge style modifiers — clamped against this whitelist. */
     private const BADGE_STYLES = ['success', 'info', 'warning', 'neutral'];
 
@@ -249,6 +255,58 @@ class Config
         return $this->labelOrDefault(
             self::XML_PATH_GARAGE_EMPTY_PROMPT,
             'Save a selection here for one-click reload later.',
+            $storeId
+        );
+    }
+
+    /** v1.2.0 — Should the OEM/part-number search box render on the Find page? Default off. */
+    public function isOemSearchEnabled(?int $storeId = null): bool
+    {
+        return $this->scopeConfig->isSetFlag(
+            self::XML_PATH_OEM_ENABLED,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    /**
+     * v1.2.0 — Which product attribute codes to search against when the
+     * customer types a part number. Default `sku`. Merchants with an
+     * OEM-number attribute (or "mpn", "manufacturer_part_number", etc.)
+     * configure multiple comma-separated codes; the OEM filter does a
+     * `LIKE %term%` across the union.
+     *
+     * @return string[]
+     */
+    public function getOemAttributeCodes(?int $storeId = null): array
+    {
+        $raw = (string) $this->scopeConfig->getValue(
+            self::XML_PATH_OEM_ATTRIBUTES,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        if (trim($raw) === '') {
+            return ['sku'];
+        }
+        $codes = array_map('trim', explode(',', $raw));
+        $codes = array_filter($codes, fn($c) => $c !== '' && preg_match('/^[a-z0-9_]+$/i', $c));
+        return array_values(array_unique($codes ?: ['sku']));
+    }
+
+    public function getOemSearchLabel(?int $storeId = null): string
+    {
+        return $this->labelOrDefault(
+            self::XML_PATH_OEM_SEARCH_LABEL,
+            'Or search by part number',
+            $storeId
+        );
+    }
+
+    public function getOemSearchPlaceholder(?int $storeId = null): string
+    {
+        return $this->labelOrDefault(
+            self::XML_PATH_OEM_SEARCH_PLACEHOLDER,
+            'Type part number…',
             $storeId
         );
     }

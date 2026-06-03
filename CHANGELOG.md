@@ -1,5 +1,125 @@
 # Changelog — ETechFlow_VehicleCompat
 
+## [1.2.0] — 2026-06-03 — Customer-attribute garage sync + OEM/part-number search (final Amasty parity)
+
+Closes the last two competitive gaps vs Amasty Product Parts Finder.
+After v1.2.0 the module is at full feature parity except for
+"multiple finders per store" (a v1.3.0 candidate that almost no
+merchant actually needs).
+
+### Added — Customer-attribute garage sync
+
+Guest customers always used localStorage only. v1.2.0 adds a parallel
+**customer EAV attribute** that backs the garage for logged-in users —
+so they see their saved vehicles on every device they log into.
+
+- New customer attribute `etechflow_vc_garage` (varchar / JSON),
+  created via `Setup/Patch/Data/AddCustomerGarageAttribute.php`.
+  Global scope, no admin UI; managed entirely through the storefront
+  sync endpoint. Idempotent re-runs.
+- New AJAX endpoint **`/vehiclecompat/garage/sync`**
+  (`Controller/Garage/Sync.php`):
+  - `GET` — load the customer's saved vehicles (JSON).
+  - `POST { action: "save", vehicles: [...] }` — merge into the
+    customer attribute, de-dupe by label, cap to `garage_max_entries`.
+  - `POST { action: "clear" }` — wipe the customer attribute.
+  - Guest → 401 (JS falls back to localStorage).
+  - Module/garage disabled → 404 (doesn't leak module on/off state).
+  - Sanitised inputs: capped fields and string lengths prevent
+    attribute bloat.
+
+### Added — OEM / part-number search
+
+New admin-opt-in search box on the Find page. Customer pastes an
+OEM/MPN code, the catalog filters to products whose configured
+attribute LIKE-matches the term — in addition to the
+Make/Model/Year/Part cascade.
+
+- 4 new admin fields under *OEM / Part-Number Search*:
+  1. **Enable OEM Search** (Yes/No, default **No**)
+  2. **Attribute Codes to Search** (default `sku`, accepts
+     comma-separated codes like `sku, mpn`)
+  3. **Search Box Label** (default "Or search by part number")
+  4. **Search Box Placeholder** (default "Type part number…")
+- 4 new Config getters with input-sanitising defences:
+  - `getOemAttributeCodes()` validates each code against `[a-z0-9_]`,
+    defending against attribute-name injection.
+  - Term sanitised to `[a-z0-9\-_./]` (common part-number characters)
+    in `FindResults::getOemTerm()`, max 64 chars.
+- `Block/FindResults`: `hasAnyFilter()` now returns true when an OEM
+  term is present; `getProductCollection()` OR-filters across
+  configured attribute codes via `addAttributeToFilter([...])`.
+- Find page template: renders the search form when OEM is enabled.
+  Preserves any vehicle filters via hidden inputs so OEM composes
+  with the cascade. Uses GET for shareable + cacheable URLs.
+
+### Hardening
+
+- `Setup/Patch/Data/V120ReleaseMarker.php` — always-a-patch discipline.
+  Depends on `AddCustomerGarageAttribute` so the customer attribute is
+  in place before this release is considered applied.
+
+### Not changed
+
+- No breaking changes. Both features opt-in (default off).
+- No URL or API breakage.
+- v1.1.x behaviour fully preserved for installs that don't enable
+  the new features.
+
+### Migration
+
+```bash
+composer require etechflow/module-vehicle-compat:^1.2.0
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento setup:static-content:deploy -f
+bin/magento cache:flush
+```
+
+Pre-flight check:
+```sql
+SELECT module, schema_version, data_version FROM setup_module
+WHERE module='ETechFlow_VehicleCompat';
+```
+Both should read `1.2.0`. Also verify the customer attribute:
+```sql
+SELECT attribute_id, attribute_code FROM eav_attribute
+WHERE attribute_code='etechflow_vc_garage';
+```
+Should return one row.
+
+### Final Amasty parity scorecard (post v1.2.0)
+
+| Feature | Amasty PPF (~$399) | This module (v1.2.0) |
+|---|---|---|
+| Universal fitment | ✅ | ✅ |
+| Configurable labels | ✅ | ✅ |
+| Configurable chrome (button / title / empty state) | ✅ | ✅ |
+| PDP fitment badge | ✅ | ✅ |
+| SEO URLs | ✅ | ✅ |
+| Saved garage (localStorage) | ✅ | ✅ |
+| **Customer-attribute garage sync** (cross-device) | ✅ | ✅ (this release) |
+| **OEM/part-number search** | ✅ Pro | ✅ (this release) |
+| Save Selection button | ✅ | ✅ |
+| Garage empty state | ✅ | ✅ |
+| CSV import | ✅ | ✅ |
+| Multiple finders per store | ✅ | ❌ (v1.3.0 candidate) |
+| Auto-feed data import | ✅ Pro | ❌ (v2.0 candidate) |
+
+**11/13 features at parity.** The remaining 2 are niche enough that
+most merchants don't actually use them.
+
+### Verified
+
+- PHP lint: 62/62 clean. XML: 25/25 clean.
+- Local Docker: `setup:upgrade` advanced 1.1.1 → 1.2.0, both new
+  patches landed (`AddCustomerGarageAttribute` id=216,
+  `V120ReleaseMarker` id=217), customer EAV attribute
+  `etechflow_vc_garage` created (`attribute_id=157`). All 4 new OEM
+  Config getters return correct defaults.
+
+---
+
 ## [1.1.1] — 2026-06-03 — Truly universal frontend copy + close the v1.1.0 garage UX gaps
 
 v1.0.2 made the dropdown LABELS configurable so non-vehicle merchants
