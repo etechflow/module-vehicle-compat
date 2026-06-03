@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="ETechFlow_VehicleCompat::root"
+             title="Vehicle Compatibility"
+             module="ETechFlow_VehicleCompat"
+             sortOrder="80"
+             parent="Magento_Catalog::catalog"
+             resource="ETechFlow_VehicleCompat::root"/>
+        <add id="ETechFlow_VehicleCompat::make"
+             title="Manage Makes"
+             module="ETechFlow_VehicleCompat"
+             sortOrder="10"
+             action="etechflow_vehicle/make/index"
+             parent="ETechFlow_VehicleCompat::root"
+             resource="ETechFlow_VehicleCompat::make"/>
+        <add id="ETechFlow_VehicleCompat::model"
+             title="Manage Models"
+             module="ETechFlow_VehicleCompat"
+             sortOrder="20"
+             action="etechflow_vehicle/model/index"
+             parent="ETechFlow_VehicleCompat::root"
+             resource="ETechFlow_VehicleCompat::model"/>
+    </menu>
+</config>

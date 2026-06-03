@@ -1,0 +1,94 @@
+<?php
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\ProductListItem;
+use Etechflow\VehicleCompat\Block\FindResults;
+use Magento\Framework\Escaper;
+
+/** @var FindResults $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+$collection   = $block->getProductCollection();
+$count        = (int) $collection->getSize();
+$chips        = $block->getFilterChips();
+$hasAnyFilter = $block->hasAnyFilter();
+$pagerHtml    = $block->getPagerHtml();
+
+$productListItemViewModel = null;
+try {
+    $productListItemViewModel = $viewModels->require(ProductListItem::class);
+} catch (\Throwable $e) { /* fall back */ }
+
+$viewMode         = 'grid';
+$imageDisplayArea = 'category_page_grid';
+$showDescription  = false;
+$templateType     = \Magento\Catalog\Block\Product\ReviewRendererInterface::SHORT_VIEW;
+$eagerLoadImagesCount = 4;
+?>
+<div class="kvc-find-page" style="max-width:1280px;margin:0 auto;padding:16px 1rem 48px;font-family:inherit">
+
+    <h1 style="font-size:1.75rem;font-weight:900;color:#0E1025;margin:0 0 12px;letter-spacing:-.01em">
+        <?= $escaper->escapeHtml(__('Find Your Parts')) ?>
+    </h1>
+
+    <?php if (!empty($chips)): ?>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px">
+            <?php foreach ($chips as $c): ?>
+                <span style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:<?= $escaper->escapeHtmlAttr($c['color']) ?>;color:#fff;border-radius:20px;font-size:.78rem;font-weight:700">
+                    <span style="opacity:.85;font-weight:500"><?= $escaper->escapeHtml($c['label']) ?>:</span>
+                    <span><?= $escaper->escapeHtml($c['value']) ?></span>
+                </span>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if (!$hasAnyFilter): ?>
+        <div style="padding:60px 0;text-align:center;background:#f7f8fb;border-radius:14px">
+            <p style="font-size:1.05rem;color:#374151;font-weight:700;margin:0 0 8px"><?= $escaper->escapeHtml(__('Pick a Make, Model, Year or Part to see matching products.')) ?></p>
+            <p style="font-size:.85rem;color:#6b7280;margin:0"><?= $escaper->escapeHtml(__('Use the Find Your Parts form in the header to start.')) ?></p>
+        </div>
+    <?php elseif ($count === 0): ?>
+        <div style="padding:60px 0;text-align:center;background:#fef2f2;border-radius:14px;border:1px solid #fecaca">
+            <p style="font-size:1.05rem;color:#991b1b;font-weight:700;margin:0 0 8px"><?= $escaper->escapeHtml(__('No products match all your filters.')) ?></p>
+            <p style="font-size:.85rem;color:#6b7280;margin:0"><?= $escaper->escapeHtml(__('Try removing one or two filters — fewer constraints usually find a match.')) ?></p>
+        </div>
+    <?php else: ?>
+        <p style="font-size:.9rem;color:#374151;font-weight:600;margin:0 0 18px">
+            <?= $escaper->escapeHtml(__('%1 product(s) match your selection', $count)) ?>
+        </p>
+
+        <section class="py-6" id="product-list" aria-label="<?= $escaper->escapeHtmlAttr(__('Product list')) ?>" tabindex="-1">
+            <div class="products wrapper mode-grid products-grid">
+                <ul role="list"
+                    class="mx-auto pt-4 pb-8 grid gap-2.5 grid-cols-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                    <?php foreach (array_values($collection->getItems()) as $i => $product): ?>
+                        <?php if ($i < $eagerLoadImagesCount):
+                            $product->setData('image_custom_attributes', ['loading' => 'eager', 'fetchpriority' => 'high']);
+                        endif; ?>
+                        <li class="flex flex-col">
+                            <?php if ($productListItemViewModel !== null):
+                                $itemHtml = '';
+                                try {
+                                    $itemHtml = $productListItemViewModel->getItemHtml(
+                                        $product,
+                                        $block,
+                                        $viewMode,
+                                        $templateType,
+                                        $imageDisplayArea,
+                                        $showDescription
+                                    );
+                                } catch (\Throwable $e) { /* fall through */ }
+                                echo /* @noEscape */ $itemHtml;
+                            endif; ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        </section>
+
+        <?= /* @noEscape */ $pagerHtml ?>
+    <?php endif; ?>
+
+</div>
