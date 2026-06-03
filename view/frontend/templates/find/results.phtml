@@ -30,7 +30,7 @@ $eagerLoadImagesCount = 4;
 <div class="vc-find-page" style="max-width:1280px;margin:0 auto;padding:16px 1rem 48px;font-family:inherit">
 
     <h1 style="font-size:1.75rem;font-weight:900;color:#0E1025;margin:0 0 12px;letter-spacing:-.01em">
-        <?= $escaper->escapeHtml(__('Find Your Parts')) ?>
+        <?= $escaper->escapeHtml($block->getFindPageTitle()) ?>
     </h1>
 
     <?php if (!empty($chips)): ?>
@@ -46,8 +46,8 @@ $eagerLoadImagesCount = 4;
 
     <?php if (!$hasAnyFilter): ?>
         <div style="padding:60px 0;text-align:center;background:#f7f8fb;border-radius:14px">
-            <p style="font-size:1.05rem;color:#374151;font-weight:700;margin:0 0 8px"><?= $escaper->escapeHtml(__('Pick a Make, Model, Year or Part to see matching products.')) ?></p>
-            <p style="font-size:.85rem;color:#6b7280;margin:0"><?= $escaper->escapeHtml(__('Use the Find Your Parts form in the header to start.')) ?></p>
+            <p style="font-size:1.05rem;color:#374151;font-weight:700;margin:0 0 8px"><?= $escaper->escapeHtml($block->getEmptyStateMessage()) ?></p>
+            <p style="font-size:.85rem;color:#6b7280;margin:0"><?= $escaper->escapeHtml(__('Use the form above to start.')) ?></p>
         </div>
     <?php elseif ($count === 0): ?>
         <div style="padding:60px 0;text-align:center;background:#fef2f2;border-radius:14px;border:1px solid #fecaca">

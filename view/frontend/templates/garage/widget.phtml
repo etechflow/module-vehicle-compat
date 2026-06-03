@@ -12,28 +12,43 @@ $storageKey = $block->getStorageKey();
 $maxEntries = $block->getMaxEntries();
 ?>
 <div class="etechflow-vc-garage" x-data="etechflowGarage('<?= $escaper->escapeJs($storageKey) ?>', <?= (int) $maxEntries ?>)" x-init="load()" x-cloak>
-    <template x-if="vehicles.length > 0">
-        <div class="etechflow-vc-garage__panel">
-            <div class="etechflow-vc-garage__title"><?= $escaper->escapeHtml(__('My Garage')) ?></div>
-            <ul class="etechflow-vc-garage__list">
-                <template x-for="(v, idx) in vehicles" :key="idx">
-                    <li class="etechflow-vc-garage__item">
-                        <button type="button"
-                                @click="useVehicle(v)"
-                                class="etechflow-vc-garage__use"
-                                x-text="v.label"></button>
-                        <button type="button"
-                                @click="remove(idx)"
-                                class="etechflow-vc-garage__remove"
-                                aria-label="<?= $escaper->escapeHtmlAttr(__('Remove')) ?>">×</button>
-                    </li>
-                </template>
-            </ul>
-            <button type="button" @click="clear()" class="etechflow-vc-garage__clear">
-                <?= $escaper->escapeHtml(__('Clear Garage')) ?>
-            </button>
-        </div>
-    </template>
+    <div class="etechflow-vc-garage__panel">
+        <div class="etechflow-vc-garage__title"><?= $escaper->escapeHtml(__('My Garage')) ?></div>
+
+        <!-- v1.1.1: Empty state — render an inviting prompt instead of going invisible.
+             Tells the customer the feature exists and how to use it. Configurable copy via
+             Stores → Config → Vehicle Compatibility → Customer-Facing Copy → Garage Empty Prompt. -->
+        <template x-if="vehicles.length === 0">
+            <div class="etechflow-vc-garage__empty">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                </svg>
+                <p class="etechflow-vc-garage__empty-prompt"><?= $escaper->escapeHtml($block->getGarageEmptyPrompt()) ?></p>
+            </div>
+        </template>
+
+        <template x-if="vehicles.length > 0">
+            <div>
+                <ul class="etechflow-vc-garage__list">
+                    <template x-for="(v, idx) in vehicles" :key="idx">
+                        <li class="etechflow-vc-garage__item">
+                            <button type="button"
+                                    @click="useVehicle(v)"
+                                    class="etechflow-vc-garage__use"
+                                    x-text="v.label"></button>
+                            <button type="button"
+                                    @click="remove(idx)"
+                                    class="etechflow-vc-garage__remove"
+                                    aria-label="<?= $escaper->escapeHtmlAttr(__('Remove')) ?>">×</button>
+                        </li>
+                    </template>
+                </ul>
+                <button type="button" @click="clear()" class="etechflow-vc-garage__clear">
+                    <?= $escaper->escapeHtml(__('Clear Garage')) ?>
+                </button>
+            </div>
+        </template>
+    </div>
 </div>
 <script>
 window.etechflowGarage = function(storageKey, maxEntries) {
@@ -128,6 +143,17 @@ window.etechflowGarageSave = function(storageKey, maxEntries) {
         margin-bottom: 8px;
     }
     .etechflow-vc-garage__list { list-style: none; margin: 0; padding: 0; }
+    .etechflow-vc-garage__empty {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #6B7280;
+        font-size: 12.5px;
+        line-height: 1.4;
+        padding: 8px 0 2px;
+    }
+    .etechflow-vc-garage__empty svg { flex-shrink: 0; opacity: 0.5; }
+    .etechflow-vc-garage__empty-prompt { margin: 0; }
     .etechflow-vc-garage__item {
         display: flex;
         align-items: center;

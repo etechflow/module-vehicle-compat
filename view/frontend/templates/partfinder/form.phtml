@@ -126,8 +126,42 @@ $sm = $vcSize === 'sm';
     </template>
 </div>
 
-<!-- FIND PARTS button -->
-<button type="button" @click="goToFindParts" class="vc-submit">
-    <?= $escaper->escapeHtml(__('FIND PARTS')) ?>
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-</button>
+<!--
+ v1.1.1: button text is now admin-configurable (Stores → Config → Vehicle
+ Compatibility → Customer-Facing Copy → Find Button Text). Default "Find Parts"
+ — non-vehicle merchants set it to e.g. "Find Cases", "Find Watches", "Find Filters".
+ No more SHOUTING all-caps.
+-->
+<div class="vc-actions">
+    <button type="button" @click="goToFindParts" class="vc-submit">
+        <?= $escaper->escapeHtml($block->getFindButtonText()) ?>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+    </button>
+    <?php /* v1.1.1: Save Selection button — only rendered when garage is enabled.
+            Calls the localStorage save helper that's already defined in the garage
+            widget. Hidden until the customer has picked at least a Make so the
+            button can't save an empty selection. */ ?>
+    <?php if ($block->isSavedGarageEnabled()): ?>
+    <button type="button"
+            class="vc-save-selection"
+            x-show="selectedMake"
+            @click="
+                if (window.etechflowGarageSave) {
+                    if (window.etechflowGarageSave('etechflow_vc_garage_v1_store_<?= (int) $block->getRequest()->getParam('___store') ?: 1 ?>', 3)) {
+                        savedFeedback = true;
+                        setTimeout(() => { savedFeedback = false; }, 1500);
+                    }
+                }
+            "
+            aria-label="<?= $escaper->escapeHtmlAttr(__('Save current selection to your garage for later')) ?>">
+        <span x-show="!savedFeedback">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+            <?= $escaper->escapeHtml($block->getSaveButtonText()) ?>
+        </span>
+        <span x-show="savedFeedback" x-cloak>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <?= $escaper->escapeHtml(__('Saved!')) ?>
+        </span>
+    </button>
+    <?php endif; ?>
+</div>

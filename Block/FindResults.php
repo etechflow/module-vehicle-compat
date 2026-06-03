@@ -26,6 +26,7 @@ class FindResults extends Template
     private PriceCurrencyInterface $priceCurrency;
     private ResourceConnection $resource;
     private StoreManagerInterface $storeManager;
+    private \ETechFlow\VehicleCompat\Model\Config $vcConfig;
 
     private ?Collection $cachedCollection = null;
 
@@ -37,6 +38,7 @@ class FindResults extends Template
         PriceCurrencyInterface $priceCurrency,
         ResourceConnection $resource,
         StoreManagerInterface $storeManager,
+        \ETechFlow\VehicleCompat\Model\Config $vcConfig,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -46,7 +48,12 @@ class FindResults extends Template
         $this->priceCurrency = $priceCurrency;
         $this->resource = $resource;
         $this->storeManager = $storeManager;
+        $this->vcConfig = $vcConfig;
     }
+
+    /** v1.1.1 — admin-configurable copy for the Find page. */
+    public function getFindPageTitle(): string     { return $this->vcConfig->getFindPageTitle(); }
+    public function getEmptyStateMessage(): string { return $this->vcConfig->getEmptyStateMessage(); }
 
     public function hasAnyFilter(): bool
     {

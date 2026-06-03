@@ -1,5 +1,135 @@
 # Changelog — ETechFlow_VehicleCompat
 
+## [1.1.1] — 2026-06-03 — Truly universal frontend copy + close the v1.1.0 garage UX gaps
+
+v1.0.2 made the dropdown LABELS configurable so non-vehicle merchants
+could rebrand "Make / Model / Year / Part" to "Brand / Phone /
+Generation / Style". v1.1.1 finally makes the **surrounding chrome**
+configurable too — the button text, page title, empty-state messages
+were still hardcoded automotive copy in v1.1.0, leaking the vehicle
+vibe into phone-case / watch-strap / appliance merchant shops.
+
+Also closes the v1.1.0 Customer Garage UX gaps that left the feature
+practically invisible to first-time customers.
+
+### Added (universal customer-facing copy)
+
+Five new admin fields under *Stores → Configuration → eTechFlow →
+Vehicle Compatibility → **Customer-Facing Copy (v1.1.1)***:
+
+1. **Find Button Text** — default `Find Parts`. Replaces v1.1.0's
+   all-caps `FIND PARTS` shouting button. Phone-case shops:
+   `Find Cases`. Watch shops: `Find Straps`. Filter shops: `Find Filters`.
+2. **Find Page Title** — default `Find Your Parts`. The `<h1>` on the
+   search results page. Customisable per merchant domain.
+3. **Empty State Message** — default
+   `Pick a {make}, {model}, {year} or {part} to see matching products.`
+   **Supports four placeholders that auto-expand to the merchant's
+   configured field labels**:
+   - `{make}` → expands to whatever Make Label is set
+   - `{model}` → Model Label
+   - `{year}` → Year Label
+   - `{part}` → Part Label
+   So if the merchant renamed Make → Brand, the empty state
+   automatically reads "Pick a Brand, Model, Year or Part…" with zero
+   extra edits.
+4. **Save Selection Button Text** — default `Save Selection`. Text on
+   the new save-to-garage button.
+5. **Garage Empty-State Prompt** — default `Save a selection here for
+   one-click reload later.` Friendly nudge shown in the My Garage
+   widget when nothing is saved.
+
+### Added (close v1.1.0 garage UX gaps)
+
+- **"💾 Save Selection" button on the Part Finder form**, right next
+  to the Find button. Visible only when:
+  - the Customer Garage is enabled in admin, AND
+  - the customer has picked at least a Make (button uses `x-show="selectedMake"`)
+  Clicking it calls the existing `window.etechflowGarageSave()`
+  helper, persists to localStorage, and flips a brief "✓ Saved!"
+  micro-interaction (~1.5s) so the customer gets feedback.
+- **My Garage empty state** — instead of rendering nothing when no
+  vehicles are saved, the widget now shows a small bookmark icon +
+  the configurable prompt. Customers discover the feature on first
+  visit instead of never knowing it exists.
+
+### Changed
+
+- **`view/frontend/templates/partfinder/form.phtml`**:
+  - The Find button now uses `$block->getFindButtonText()` instead of
+    hardcoded `__('FIND PARTS')`. Mixed-case by default; merchants
+    can SHOUT_CASE if they want to.
+  - Wrapped Find button + new Save button in a `.vc-actions` flex
+    container so they sit side-by-side.
+- **`view/frontend/templates/find/results.phtml`**:
+  - `<h1>` now reads `$block->getFindPageTitle()`.
+  - Empty-state copy now uses `$block->getEmptyStateMessage()` with
+    label substitution.
+- **`view/frontend/templates/find/chips.phtml`**: same empty-state
+  treatment.
+- **`view/frontend/templates/garage/widget.phtml`**: empty-state UI
+  block + supporting CSS.
+- **`view/frontend/web/js/part-finder.js`**: new transient
+  `savedFeedback` Alpine state for the Save button confirmation.
+- **`Model/Config.php`**: 5 new getters
+  (`getFindButtonText`, `getFindPageTitle`, `getEmptyStateMessage`,
+  `getSaveButtonText`, `getGarageEmptyPrompt`). The empty-state
+  getter applies placeholder substitution from the label getters.
+- **`Block/PartFinderData.php`**: exposes the new getters to templates.
+- **`Block/Garage.php`**: same.
+- **`Block/FindResults.php`**: now injects `Model\Config` to expose
+  `getFindPageTitle()` and `getEmptyStateMessage()`.
+
+### Hardening
+
+- `Setup/Patch/Data/V111ReleaseMarker.php` — always-a-patch discipline.
+
+### Not changed
+
+- No schema changes — drop-in upgrade from 1.1.0.
+- No URL changes.
+- No API changes.
+- Default behaviour for installs that don't touch the new copy fields
+  is functionally equivalent to v1.1.0 (with cosmetic improvements:
+  mixed-case button, garage empty state visible).
+
+### Migration
+
+```bash
+composer require etechflow/module-vehicle-compat:^1.1.1
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento setup:static-content:deploy -f
+bin/magento cache:flush
+```
+
+Pre-flight check:
+```sql
+SELECT module, schema_version, data_version FROM setup_module
+WHERE module='ETechFlow_VehicleCompat';
+```
+Both should read `1.1.1`. If `data_version` is stale, re-run
+`setup:upgrade` — do NOT flush cache yet.
+
+To opt in to universal copy:
+- Visit *Stores → Configuration → eTechFlow → Vehicle Compatibility →
+  Customer-Facing Copy*
+- Set merchant-specific button/title/empty-state text
+- For non-vehicle stores, **also** set the field labels under General
+  Settings (Make → Brand, etc.) and the placeholders in your empty-
+  state message will auto-expand to match
+
+### Verified
+
+- PHP lint: 59/59 clean
+- XML: 25/25 clean
+- Local Docker: `setup:upgrade` advanced 1.1.0 → 1.1.1, V111ReleaseMarker
+  landed in patch_list (id 215), all 5 new Config getters return
+  correct defaults, empty-state placeholder substitution confirmed
+  ("Make → Brand" relabel → "Pick a Brand, Model, Year or Style…").
+
+---
+
 ## [1.1.0] — 2026-06-03 — Amasty-competitor feature set: PDP fitment badge, SEO URLs, customer garage, universal positioning
 
 Four major additions that turn this from "Vehicle Compatibility v1.0"

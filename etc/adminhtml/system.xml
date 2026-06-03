@@ -273,6 +273,81 @@
                 </field>
             </group>
 
+            <group id="copy" translate="label" type="text" sortOrder="15"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Customer-Facing Copy (v1.1.1)</label>
+                <comment><![CDATA[
+                    Override the customer-facing button text, page title, and empty-state
+                    messages. Pairs with the v1.0.2 label config so the entire Part Finder
+                    UX can be rebranded for non-vehicle domains (phone cases, watches,
+                    appliance parts, etc.). Leave blank to fall back to defaults.
+                ]]></comment>
+                <field id="find_button_text" translate="label comment tooltip" type="text"
+                       sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Find Button Text</label>
+                    <tooltip>Text on the big call-to-action button. Default "Find Parts".</tooltip>
+                    <comment><![CDATA[
+                        Text on the big call-to-action button at the bottom of the Part
+                        Finder form. Default: <em>Find Parts</em>. Alternatives:<br/>
+                        - <code>Find Cases</code> — phone case shops<br/>
+                        - <code>Find Watches</code> — watch shops<br/>
+                        - <code>Find Filters</code> — automotive filter shops<br/>
+                        - <code>Search</code> — minimalist<br/>
+                        Mixed-case recommended — v1.1.0 shipped all-caps "FIND PARTS" which read shouty.
+                    ]]></comment>
+                </field>
+                <field id="find_page_title" translate="label comment tooltip" type="text"
+                       sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Find Page Title</label>
+                    <tooltip>H1 heading on the search results page. Default "Find Your Parts".</tooltip>
+                    <comment><![CDATA[
+                        H1 heading on the search results page. Default: <em>Find Your Parts</em>.
+                        Phone-case shop: <code>Find Your Case</code>. Watch shop:
+                        <code>Find Your Strap</code>. Industrial: <code>Component Finder</code>.
+                    ]]></comment>
+                </field>
+                <field id="empty_state_message" translate="label comment tooltip" type="text"
+                       sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Empty State Message</label>
+                    <tooltip>Message shown when no filters are active. Supports {make} {model} {year} {part} placeholders that expand to your configured labels.</tooltip>
+                    <comment><![CDATA[
+                        Message shown when the customer lands on the Find page without
+                        any filters active. Supports four placeholders that automatically
+                        expand to your configured field labels (set in the General Settings
+                        group above):<br/>
+                        <code>{make}</code> · <code>{model}</code> · <code>{year}</code> · <code>{part}</code><br/><br/>
+                        Default: <em>Pick a {make}, {model}, {year} or {part} to see
+                        matching products.</em><br/>
+                        If you rename Make → Brand and Model → Phone, the empty state
+                        automatically reads <em>Pick a Brand, Phone, Year or Part to see
+                        matching products.</em> — no separate edit needed unless you
+                        want different wording.
+                    ]]></comment>
+                </field>
+                <field id="save_button_text" translate="label comment tooltip" type="text"
+                       sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Save Selection Button Text</label>
+                    <tooltip>Text on the "save to garage" button next to Find. Default "Save Selection".</tooltip>
+                    <comment><![CDATA[
+                        Text on the save-to-garage button next to Find. Default: <em>Save
+                        Selection</em>. Renders only when the Customer Garage is enabled
+                        (below) and the customer has picked at least a Make.
+                    ]]></comment>
+                </field>
+                <field id="garage_empty_prompt" translate="label comment tooltip" type="text"
+                       sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Garage Empty-State Prompt</label>
+                    <tooltip>Friendly nudge shown in the My Garage widget when no vehicles are saved.</tooltip>
+                    <comment><![CDATA[
+                        Friendly prompt shown in the My Garage widget when the customer
+                        hasn't saved anything yet. Default: <em>Save a selection here
+                        for one-click reload later.</em><br/>
+                        Without this prompt the widget would render nothing on empty state,
+                        and customers would never discover the feature.
+                    ]]></comment>
+                </field>
+            </group>
+
             <group id="garage" translate="label" type="text" sortOrder="40"
                    showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Customer Garage (v1.1.0)</label>

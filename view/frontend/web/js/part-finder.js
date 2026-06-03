@@ -23,6 +23,11 @@ function vehicleCompatPartFinder(carKeysPartsBaseUrl, optionsUrl) {
         // override by passing a second argument for testing / routing tweaks.
         optionsUrl: optionsUrl || '/vehiclecompat/options/index',
 
+        // v1.1.1: Transient flag flipped true for ~1.5s after a successful
+        // "Save Selection to Garage" click. Drives the "Saved!" confirmation
+        // micro-interaction on the Save button.
+        savedFeedback: false,
+
         // ---- Proxy state to the shared Alpine store ----
         get selectedMake()      { return Alpine.store('vehicleCompatSel').make; },
         set selectedMake(v)     { Alpine.store('vehicleCompatSel').make = v; },

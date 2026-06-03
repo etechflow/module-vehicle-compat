@@ -39,6 +39,13 @@ class Config
     private const XML_PATH_GARAGE_ENABLED       = 'etechflow_vehiclecompat/garage/enabled';
     private const XML_PATH_GARAGE_MAX_ENTRIES   = 'etechflow_vehiclecompat/garage/max_entries';
 
+    // v1.1.1 — Universal customer-facing copy
+    private const XML_PATH_FIND_BUTTON_TEXT     = 'etechflow_vehiclecompat/copy/find_button_text';
+    private const XML_PATH_FIND_PAGE_TITLE      = 'etechflow_vehiclecompat/copy/find_page_title';
+    private const XML_PATH_EMPTY_STATE_MESSAGE  = 'etechflow_vehiclecompat/copy/empty_state_message';
+    private const XML_PATH_SAVE_BUTTON_TEXT     = 'etechflow_vehiclecompat/copy/save_button_text';
+    private const XML_PATH_GARAGE_EMPTY_PROMPT  = 'etechflow_vehiclecompat/copy/garage_empty_prompt';
+
     /** Allowed badge style modifiers — clamped against this whitelist. */
     private const BADGE_STYLES = ['success', 'info', 'warning', 'neutral'];
 
@@ -196,5 +203,53 @@ class Config
         if ($value < 1) { return 3; }
         if ($value > 10) { return 10; }
         return $value;
+    }
+
+    /** v1.1.1 — Customer-facing button + title + empty-state copy.
+     *  All admin-configurable so non-vehicle merchants can rebrand the
+     *  surrounding chrome to match their domain (phone cases, watches, etc.).
+     */
+    public function getFindButtonText(?int $storeId = null): string
+    {
+        return $this->labelOrDefault(self::XML_PATH_FIND_BUTTON_TEXT, 'Find Parts', $storeId);
+    }
+
+    public function getFindPageTitle(?int $storeId = null): string
+    {
+        return $this->labelOrDefault(self::XML_PATH_FIND_PAGE_TITLE, 'Find Your Parts', $storeId);
+    }
+
+    /**
+     * Empty-state message shown when no filters are active on the Find
+     * page. Supports `{make}` / `{model}` / `{year}` / `{part}` placeholders
+     * which expand to the merchant's configured labels at render time.
+     */
+    public function getEmptyStateMessage(?int $storeId = null): string
+    {
+        $template = $this->labelOrDefault(
+            self::XML_PATH_EMPTY_STATE_MESSAGE,
+            'Pick a {make}, {model}, {year} or {part} to see matching products.',
+            $storeId
+        );
+        return strtr($template, [
+            '{make}'  => $this->getMakeLabel($storeId),
+            '{model}' => $this->getModelLabel($storeId),
+            '{year}'  => $this->getYearLabel($storeId),
+            '{part}'  => $this->getPartLabel($storeId),
+        ]);
+    }
+
+    public function getSaveButtonText(?int $storeId = null): string
+    {
+        return $this->labelOrDefault(self::XML_PATH_SAVE_BUTTON_TEXT, 'Save Selection', $storeId);
+    }
+
+    public function getGarageEmptyPrompt(?int $storeId = null): string
+    {
+        return $this->labelOrDefault(
+            self::XML_PATH_GARAGE_EMPTY_PROMPT,
+            'Save a selection here for one-click reload later.',
+            $storeId
+        );
     }
 }

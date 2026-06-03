@@ -56,4 +56,7 @@ class Garage extends Template
         // don't share garages (different catalogs, different vehicle ids).
         return 'etechflow_vc_garage_v1_store_' . (int) $this->_storeManager->getStore()->getId();
     }
+
+    /** v1.1.1 — Admin-configurable customer-facing copy. */
+    public function getGarageEmptyPrompt(): string { return $this->config->getGarageEmptyPrompt(); }
 }

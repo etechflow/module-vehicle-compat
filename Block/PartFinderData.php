@@ -80,6 +80,16 @@ class PartFinderData extends Template
     /** Whether the Year row should render at all — admin-configurable since v1.0.2. */
     public function isYearFieldEnabled(): bool { return $this->config->isYearFieldEnabled(); }
 
+    /** v1.1.1 — Universal customer-facing copy (button + page title + save + empty states). */
+    public function getFindButtonText(): string     { return $this->config->getFindButtonText(); }
+    public function getFindPageTitle(): string      { return $this->config->getFindPageTitle(); }
+    public function getEmptyStateMessage(): string  { return $this->config->getEmptyStateMessage(); }
+    public function getSaveButtonText(): string     { return $this->config->getSaveButtonText(); }
+    public function getGarageEmptyPrompt(): string  { return $this->config->getGarageEmptyPrompt(); }
+
+    /** v1.1.1 — Garage availability so templates can show the Save button conditionally. */
+    public function isSavedGarageEnabled(): bool    { return $this->config->isSavedGarageEnabled(); }
+
     public function getTreeJson(): string
     {
         return $this->serializer->serialize($this->getTree());
