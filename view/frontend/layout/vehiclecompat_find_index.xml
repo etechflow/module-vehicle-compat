@@ -10,14 +10,14 @@
 
         <referenceContainer name="sidebar.main">
             <block class="ETechFlow\VehicleCompat\Block\FilterChips"
-                   name="kvc.sidebar.summary"
+                   name="vehiclecompat.sidebar.summary"
                    template="ETechFlow_VehicleCompat::find/sidebar.phtml"
                    cacheable="false"/>
         </referenceContainer>
 
         <referenceContainer name="content">
             <block class="ETechFlow\VehicleCompat\Block\FindResults"
-                   name="kvc.find.results"
+                   name="vehiclecompat.find.results"
                    template="ETechFlow_VehicleCompat::find/results.phtml"
                    cacheable="false"/>
         </referenceContainer>

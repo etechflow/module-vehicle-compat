@@ -12,7 +12,7 @@ use Magento\Framework\Controller\Result\RawFactory;
 use Magento\Framework\View\LayoutInterface;
 
 /**
- * /kvc/options/index — server-side filtered dropdown options for the
+ * /vehiclecompat/options/index — server-side filtered dropdown options for the
  * Find-Your-Parts widget. Replaces the previous client-side tree filter.
  *
  * Query params (all optional):

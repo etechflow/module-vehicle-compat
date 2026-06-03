@@ -1,12 +1,12 @@
 // Shared selection store — keeps Make/Model/Year/Part in sync across every
-// kvcPartFinder() instance on the page (desktop hero, mobile hero,
+// vehicleCompatPartFinder() instance on the page (desktop hero, mobile hero,
 // product-detail sidebar, header modal). Server-side filtering: each
 // dropdown click triggers an AJAX call that returns only the matching
 // options for that field given the current selections — no preloaded tree,
 // no client-side bidirectional filter logic.
 document.addEventListener('alpine:init', () => {
-    if (window.Alpine && !window.Alpine.store('kvcSel')) {
-        window.Alpine.store('kvcSel', {
+    if (window.Alpine && !window.Alpine.store('vehicleCompatSel')) {
+        window.Alpine.store('vehicleCompatSel', {
             make: '', model: '', year: '', part: '',
             makeLabel: '', modelLabel: '', partLabel: '',
             optionsMake:  [], optionsModel: [], optionsYear: [], optionsPart: [],
@@ -17,35 +17,35 @@ document.addEventListener('alpine:init', () => {
     }
 });
 
-function kvcPartFinder(carKeysPartsBaseUrl, optionsUrl) {
+function vehicleCompatPartFinder(carKeysPartsBaseUrl, optionsUrl) {
     return {
-        // Default the options endpoint to /kvc/options/index. Callers can
+        // Default the options endpoint to /vehiclecompat/options/index. Callers can
         // override by passing a second argument for testing / routing tweaks.
-        optionsUrl: optionsUrl || '/kvc/options/index',
+        optionsUrl: optionsUrl || '/vehiclecompat/options/index',
 
         // ---- Proxy state to the shared Alpine store ----
-        get selectedMake()      { return Alpine.store('kvcSel').make; },
-        set selectedMake(v)     { Alpine.store('kvcSel').make = v; },
-        get selectedModel()     { return Alpine.store('kvcSel').model; },
-        set selectedModel(v)    { Alpine.store('kvcSel').model = v; },
-        get selectedYear()      { return Alpine.store('kvcSel').year; },
-        set selectedYear(v)     { Alpine.store('kvcSel').year = v; },
-        get selectedPart()      { return Alpine.store('kvcSel').part; },
-        set selectedPart(v)     { Alpine.store('kvcSel').part = v; },
+        get selectedMake()      { return Alpine.store('vehicleCompatSel').make; },
+        set selectedMake(v)     { Alpine.store('vehicleCompatSel').make = v; },
+        get selectedModel()     { return Alpine.store('vehicleCompatSel').model; },
+        set selectedModel(v)    { Alpine.store('vehicleCompatSel').model = v; },
+        get selectedYear()      { return Alpine.store('vehicleCompatSel').year; },
+        set selectedYear(v)     { Alpine.store('vehicleCompatSel').year = v; },
+        get selectedPart()      { return Alpine.store('vehicleCompatSel').part; },
+        set selectedPart(v)     { Alpine.store('vehicleCompatSel').part = v; },
 
-        get selectedMakeLabel()  { return Alpine.store('kvcSel').makeLabel; },
-        set selectedMakeLabel(v) { Alpine.store('kvcSel').makeLabel = v; },
-        get selectedModelLabel() { return Alpine.store('kvcSel').modelLabel; },
-        set selectedModelLabel(v){ Alpine.store('kvcSel').modelLabel = v; },
+        get selectedMakeLabel()  { return Alpine.store('vehicleCompatSel').makeLabel; },
+        set selectedMakeLabel(v) { Alpine.store('vehicleCompatSel').makeLabel = v; },
+        get selectedModelLabel() { return Alpine.store('vehicleCompatSel').modelLabel; },
+        set selectedModelLabel(v){ Alpine.store('vehicleCompatSel').modelLabel = v; },
         get selectedYearLabel()  { return this.selectedYear ? String(this.selectedYear) : ''; },
-        get selectedPartLabel()  { return Alpine.store('kvcSel').partLabel; },
-        set selectedPartLabel(v) { Alpine.store('kvcSel').partLabel = v; },
+        get selectedPartLabel()  { return Alpine.store('vehicleCompatSel').partLabel; },
+        set selectedPartLabel(v) { Alpine.store('vehicleCompatSel').partLabel = v; },
 
         // Hydrate selection IDs from URL params once across all instances.
         // Labels stay empty until first dropdown open populates them — that's
         // OK because the trigger button falls back to "Select X" placeholder.
         init() {
-            const s = Alpine.store('kvcSel');
+            const s = Alpine.store('vehicleCompatSel');
             if (!s._urlHydrated) {
                 s._urlHydrated = true;
                 try {
@@ -77,7 +77,7 @@ function kvcPartFinder(carKeysPartsBaseUrl, optionsUrl) {
         // result for that field is still valid (no other selection has
         // changed since), the call is a no-op.
         _fetchField(field) {
-            const s = Alpine.store('kvcSel');
+            const s = Alpine.store('vehicleCompatSel');
             const loadingKey = 'loading' + field.charAt(0).toUpperCase() + field.slice(1);
             const loadedKey  = 'loaded'  + field.charAt(0).toUpperCase() + field.slice(1);
             const optionsKey = 'options' + field.charAt(0).toUpperCase() + field.slice(1);
@@ -129,7 +129,7 @@ function kvcPartFinder(carKeysPartsBaseUrl, optionsUrl) {
         // fetch; the search input on top of the panel does a local substring
         // filter so the user can type to narrow without another round-trip.
         get visibleMakes() {
-            let list = Alpine.store('kvcSel').optionsMake;
+            let list = Alpine.store('vehicleCompatSel').optionsMake;
             if (this.queryMake) {
                 const q = this.queryMake.toLowerCase();
                 list = list.filter(m => m.name.toLowerCase().includes(q));
@@ -137,7 +137,7 @@ function kvcPartFinder(carKeysPartsBaseUrl, optionsUrl) {
             return list;
         },
         get visibleModels() {
-            let list = Alpine.store('kvcSel').optionsModel;
+            let list = Alpine.store('vehicleCompatSel').optionsModel;
             if (this.queryModel) {
                 const q = this.queryModel.toLowerCase();
                 list = list.filter(m => m.name.toLowerCase().includes(q));
@@ -145,14 +145,14 @@ function kvcPartFinder(carKeysPartsBaseUrl, optionsUrl) {
             return list;
         },
         get visibleYears() {
-            let list = Alpine.store('kvcSel').optionsYear.map(o => o.id);
+            let list = Alpine.store('vehicleCompatSel').optionsYear.map(o => o.id);
             if (this.queryYear) {
                 list = list.filter(y => String(y).includes(this.queryYear));
             }
             return list;
         },
         get visibleParts() {
-            let list = Alpine.store('kvcSel').optionsPart;
+            let list = Alpine.store('vehicleCompatSel').optionsPart;
             if (this.queryPart) {
                 const q = this.queryPart.toLowerCase();
                 list = list.filter(p => p.name.toLowerCase().includes(q));
@@ -164,7 +164,7 @@ function kvcPartFinder(carKeysPartsBaseUrl, optionsUrl) {
         // `except`. Called after any pick so the next dropdown click refetches
         // with the new filter combination.
         _invalidateOthers(except) {
-            const s = Alpine.store('kvcSel');
+            const s = Alpine.store('vehicleCompatSel');
             if (except !== 'make')  { s.loadedMake  = false; s.optionsMake  = []; }
             if (except !== 'model') { s.loadedModel = false; s.optionsModel = []; }
             if (except !== 'year')  { s.loadedYear  = false; s.optionsYear  = []; }
@@ -200,7 +200,7 @@ function kvcPartFinder(carKeysPartsBaseUrl, optionsUrl) {
             this._invalidateOthers('part');
         },
         clearField(name) {
-            const s = Alpine.store('kvcSel');
+            const s = Alpine.store('vehicleCompatSel');
             if (name === 'make')  { s.make = ''; s.makeLabel = ''; s.model = ''; s.modelLabel = ''; s.year = ''; this._invalidateOthers('make'); }
             if (name === 'model') { s.model = ''; s.modelLabel = ''; s.year = ''; this._invalidateOthers('model'); }
             if (name === 'year')  { s.year = ''; this._invalidateOthers('year'); }

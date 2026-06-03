@@ -12,7 +12,7 @@ use Magento\Framework\Controller\Result\RawFactory;
 use Magento\Framework\View\LayoutInterface;
 
 /**
- * /kvc/tree.json — serves the vehicle make/model/parts tree as a standalone,
+ * /vehiclecompat/tree.json — serves the vehicle make/model/parts tree as a standalone,
  * browser-cacheable JSON resource so it can be lazy-loaded by the header
  * Find-Your-Parts widget on first interaction instead of bloating every page
  * with 243 KB of inline JSON.

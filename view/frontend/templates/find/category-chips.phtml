@@ -8,20 +8,20 @@ if (empty($chips)) return;
     /* When the vehicle filter is active, the SHOP BY left sidebar is hidden
        (Layer plugin doesn't support faceted aggregation on our custom collection).
        Reclaim that space for the product grid so the layout doesn't look broken. */
-    body:has(.kvc-cat-chips) .sidebar-main,
-    body:has(.kvc-cat-chips) aside.sidebar-main,
-    body:has(.kvc-cat-chips) .sidebar.sidebar-main { display: none !important; }
+    body:has(.vc-cat-chips) .sidebar-main,
+    body:has(.vc-cat-chips) aside.sidebar-main,
+    body:has(.vc-cat-chips) .sidebar.sidebar-main { display: none !important; }
 
-    body:has(.kvc-cat-chips) .columns {
+    body:has(.vc-cat-chips) .columns {
         grid-template-columns: minmax(0, 1fr) minmax(0, 330px) !important;
     }
     @media (max-width: 1023px) {
-        body:has(.kvc-cat-chips) .columns {
+        body:has(.vc-cat-chips) .columns {
             grid-template-columns: minmax(0, 1fr) !important;
         }
     }
 </style>
-<div class="kvc-cat-chips" style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 16px;padding:12px 14px;background:#f7f8fb;border-radius:10px">
+<div class="vc-cat-chips" style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 16px;padding:12px 14px;background:#f7f8fb;border-radius:10px">
     <span style="font-size:.78rem;color:#6b7280;font-weight:700;margin-right:4px"><?= $escaper->escapeHtml(__('Filtering by:')) ?></span>
     <?php foreach ($chips as $c): ?>
         <span style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:<?= $escaper->escapeHtmlAttr($c['color']) ?>;color:#fff;border-radius:20px;font-size:.78rem;font-weight:700">

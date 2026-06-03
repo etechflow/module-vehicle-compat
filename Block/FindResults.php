@@ -192,7 +192,7 @@ class FindResults extends Template
         $baseUrl = preg_replace('/([?&])p=\d+/', '$1', $baseUrl);
         $baseUrl = rtrim($baseUrl, '&?');
 
-        $html = '<nav class="kvc-pager" style="display:flex;justify-content:center;gap:6px;margin-top:24px;flex-wrap:wrap">';
+        $html = '<nav class="vehiclecompat-pager" style="display:flex;justify-content:center;gap:6px;margin-top:24px;flex-wrap:wrap">';
         for ($i = 1; $i <= $totalPages; $i++) {
             $sep = (strpos($baseUrl, '?') === false) ? '?' : '&';
             $url = $baseUrl . $sep . 'p=' . $i;

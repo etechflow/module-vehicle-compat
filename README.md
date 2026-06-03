@@ -25,9 +25,9 @@ Two halves of one feature, intentionally bundled in one module:
 
 ### Half 2 — Part Finder widget
 
-- **`/kvc/options/index`** — server-side filtered options endpoint. Each dropdown click sends `field=make|model|year|part` + current selections, server applies bidirectional filter and returns only matching options.
-- **`/kvc/tree/index`** — full vehicle tree (cached, browser-cacheable for 1h).
-- **`/kvc/find/index`** — find-parts results page that filters the catalog by the customer's vehicle.
+- **`/vehiclecompat/options/index`** — server-side filtered options endpoint. Each dropdown click sends `field=make|model|year|part` + current selections, server applies bidirectional filter and returns only matching options.
+- **`/vehiclecompat/tree/index`** — full vehicle tree (cached, browser-cacheable for 1h).
+- **`/vehiclecompat/find/index`** — find-parts results page that filters the catalog by the customer's vehicle.
 - **Shareable form fragment** (`ETechFlow_VehicleCompat::partfinder/form.phtml`) that drops into any layout — header modal, hero section, PDP sidebar, all use the same template.
 - **Self-contained Alpine.js bootstrap** — on Hyvä stores Alpine is already loaded; on Luma / custom themes the bootstrap lazy-loads Alpine from a CDN (URL is overridable for stores that want to self-host).
 - **Shared Alpine store** so multiple form instances on the same page (desktop hero + mobile hero + header modal) stay in sync.
@@ -43,7 +43,7 @@ Two halves of one feature, intentionally bundled in one module:
 | **Custom themes** (Luma parent) | ✅ With bootstrap | Same as Luma. |
 | **Custom themes** (Hyvä parent) | ✅ Native | Same as Hyvä. |
 | **Air-gapped / no-CDN stores** | ⚠️ Self-host Alpine | Replace the CDN URL in `view/frontend/web/js/alpine-bootstrap.js` with your self-hosted Alpine URL, or pre-install Alpine in your theme. |
-| **Headless / PWA Studio** | ⚠️ Use API only | Use `/kvc/options/index` directly from your headless storefront. The PHP-rendered form fragment is skipped in headless. |
+| **Headless / PWA Studio** | ⚠️ Use API only | Use `/vehiclecompat/options/index` directly from your headless storefront. The PHP-rendered form fragment is skipped in headless. |
 
 See `COMPATIBILITY.md` for the full audit.
 

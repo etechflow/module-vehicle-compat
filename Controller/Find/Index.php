@@ -8,7 +8,7 @@ use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\View\Result\PageFactory;
 
 /**
- * /kvc/find/index — renders the Find Your Parts results page.
+ * /vehiclecompat/find/index — renders the Find Your Parts results page.
  * Uses a 2columns-left layout with custom sidebar + Hyva product cards.
  * URL stays at /car-keys-parts (via FrontControllerForward plugin).
  */

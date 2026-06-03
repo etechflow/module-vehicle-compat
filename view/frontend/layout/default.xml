@@ -7,9 +7,9 @@
                             from a CDN so the Part Finder widget works
                             without a theme-level dependency.
 
-  2. kvc-part-finder.js   — the Alpine factory function used by the
+  2. part-finder.js   — the Alpine factory function used by the
                             Part Finder form fragment. Defined on window
-                            so any x-data="kvcPartFinder(...)" on the page
+                            so any x-data="vehicleCompatPartFinder(...)" on the page
                             can call it.
 
   Stores can override either file by shipping a same-named file at a
@@ -20,6 +20,6 @@
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
         <script src="ETechFlow_VehicleCompat::js/alpine-bootstrap.js"/>
-        <script src="ETechFlow_VehicleCompat::js/kvc-part-finder.js"/>
+        <script src="ETechFlow_VehicleCompat::js/part-finder.js"/>
     </head>
 </page>
