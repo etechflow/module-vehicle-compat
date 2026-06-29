@@ -6,6 +6,13 @@
             <license>
                 <license_key></license_key>
                 <production_environment>1</production_environment>
+                <portal_url></portal_url>
+                <portal_api_url>https://license-service.etechflow.com</portal_api_url>
+                <issued_key></issued_key>
+                <issued_at>0</issued_at>
+                <issued_domain></issued_domain>
+                <issued_plan></issued_plan>
+                <revoked>0</revoked>
             </license>
             <general>
                 <enabled>1</enabled>

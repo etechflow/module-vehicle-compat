@@ -10,6 +10,13 @@
                         <resource id="ETechFlow_VehicleCompat::model" title="Manage Models" sortOrder="20"/>
                     </resource>
                 </resource>
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <resource id="ETechFlow_VehicleCompat::config" title="Vehicle Compatibility" sortOrder="180"/>
+                        </resource>
+                    </resource>
+                </resource>
             </resource>
         </resources>
     </acl>
