@@ -22,5 +22,12 @@
              action="etechflow_vehicle/model/index"
              parent="ETechFlow_VehicleCompat::root"
              resource="ETechFlow_VehicleCompat::model"/>
+        <add id="ETechFlow_VehicleCompat::license_gate"
+             title="License"
+             module="ETechFlow_VehicleCompat"
+             sortOrder="90"
+             action="etechflow_vehicle/license/gate"
+             parent="ETechFlow_VehicleCompat::root"
+             resource="ETechFlow_VehicleCompat::config"/>
     </menu>
 </config>

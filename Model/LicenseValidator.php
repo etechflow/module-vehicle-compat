@@ -4,37 +4,43 @@ declare(strict_types=1);
 
 namespace ETechFlow\VehicleCompat\Model;
 
+use Magento\Framework\App\CacheInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\HTTP\Client\Curl;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
- * Validates the per-domain license key for ETechFlow_AccountLinksManager.
+ * Hybrid HMAC + portal license validator (eTechFlow Pattern-A).
+ * Mirrors module-mega-menu/Model/LicenseValidator.php; see PORTAL_LICENSING_GUIDE.md.
  *
- * Same pattern as every other eTechFlow module:
- *   - Per-module key activates this module only.
- *   - Bundle key (shared HMAC secret across modules) activates ALL
- *     eTechFlow modules at once.
- *   - "Production Environment = No" bypasses licensing for dev/staging.
- *   - Common dev hostnames auto-detect and bypass licensing.
- *
- * An invalid key causes the module to silently no-op (the sidebar
- * filter doesn't run) — no storefront crash.
+ *   isValid() order:
+ *     1. revoked = 1                     -> false (portal revoke wins)
+ *     2. Production Environment = No      -> true  (dev/staging bypass)
+ *     3. dev/staging host auto-detect     -> true  (bypass)
+ *     4. SP-XXXX key + portal answers      -> portal answer is final
+ *     5. SP-XXXX key + portal unreachable  -> 48h local grace (issued_*)
+ *     6. HMAC per-module key               -> hash_equals(computeKey(host), key)
+ *     7. shared bundle key                 -> hash_equals(computeBundleKey(host), key)
+ *     8. otherwise                         -> false
  */
 class LicenseValidator
 {
     public const XML_PATH_LICENSE_KEY            = 'etechflow_vehiclecompat/license/license_key';
     public const XML_PATH_PRODUCTION_ENVIRONMENT = 'etechflow_vehiclecompat/license/production_environment';
+    public const XML_PATH_PORTAL_URL             = 'etechflow_vehiclecompat/license/portal_url';
+    public const XML_PATH_PORTAL_API_URL         = 'etechflow_vehiclecompat/license/portal_api_url';
+    public const XML_PATH_ISSUED_KEY             = 'etechflow_vehiclecompat/license/issued_key';
+    public const XML_PATH_ISSUED_AT              = 'etechflow_vehiclecompat/license/issued_at';
+    public const XML_PATH_ISSUED_DOMAIN          = 'etechflow_vehiclecompat/license/issued_domain';
+    public const XML_PATH_REVOKED                = 'etechflow_vehiclecompat/license/revoked';
 
-    /** Shared config path — same value across all eTechFlow modules. */
+    /** Shared config path - same value across all eTechFlow modules. */
     public const XML_PATH_BUNDLE_LICENSE_KEY = 'etechflow_bundle/license/license_key';
 
     private const MODULE_ID = 'vehicle-compat';
-
-    /** Shared bundle identifier — must match across all eTechFlow modules. */
     private const BUNDLE_ID = 'etechflow-bundle';
 
-    /** Per-module HMAC secret. */
     private const SECRET_FRAGMENTS = [
         'eTF-VC-2026',
         'k5J2-wQ7m',
@@ -42,7 +48,6 @@ class LicenseValidator
         'R8pT-yE3v',
     ];
 
-    /** Shared bundle HMAC secret. MUST be identical across every eTechFlow module. */
     private const BUNDLE_SECRET_FRAGMENTS = [
         'eTF-BUNDLE-2026',
         'k2D9-mP4x',
@@ -50,23 +55,27 @@ class LicenseValidator
         'X7tY-zW5q',
     ];
 
-    /**
-     * @param ScopeConfigInterface  $scopeConfig
-     * @param StoreManagerInterface $storeManager
-     */
+    private const CACHE_TTL_VALID  = 30;
+    private const CACHE_TTL_REJECT = 60;
+    public const CACHE_TAG = 'etf_vehiclecompat_license';
+
+    private const DEFAULT_PORTAL_API = 'https://license-service.etechflow.com';
+
     public function __construct(
         private readonly ScopeConfigInterface $scopeConfig,
-        private readonly StoreManagerInterface $storeManager
+        private readonly StoreManagerInterface $storeManager,
+        private readonly CacheInterface $cache,
+        private readonly Curl $curl
     ) {
     }
 
-    /**
-     * @return bool
-     */
     public function isValid(): bool
     {
         $host = $this->getCurrentHost();
         if ($host === '') {
+            return false;
+        }
+        if ($this->isExplicitlyRevoked()) {
             return false;
         }
         if (!$this->isProductionEnvironment()) {
@@ -75,21 +84,103 @@ class LicenseValidator
         if ($this->isDevelopmentHost($host)) {
             return true;
         }
+
         $configuredKey = $this->getConfiguredKey();
+
+        if (str_starts_with($configuredKey, 'SP-')) {
+            $portalAnswer = $this->validateViaPortal($host, $configuredKey);
+            if ($portalAnswer === true) {
+                return true;
+            }
+            if ($portalAnswer === false) {
+                return false;
+            }
+            return $this->isLocallyIssuedKey($configuredKey, $host);
+        }
+
         if ($configuredKey !== '' && hash_equals($this->computeKey($host), $configuredKey)) {
             return true;
         }
+
         $bundleKey = $this->getConfiguredBundleKey();
         if ($bundleKey !== '' && hash_equals($this->computeBundleKey($host), $bundleKey)) {
             return true;
         }
+
         return false;
     }
 
     /**
-     * @param string $host
-     * @return string
+     * @return bool|null  true=valid  false=explicit reject  null=unreachable
      */
+    private function validateViaPortal(string $host, string $licenseKey): ?bool
+    {
+        $cacheKey = 'etf_vc_lic_' . md5($host . ':' . $licenseKey);
+        $cached   = $this->cache->load($cacheKey);
+        if ($cached === '1') {
+            return true;
+        }
+        if ($cached === '0') {
+            return false;
+        }
+
+        $apiBase = $this->getPortalApiBase();
+        if ($apiBase === '') {
+            return null;
+        }
+
+        $url = rtrim($apiBase, '/') . '/license/validate'
+            . '?domain='      . urlencode($this->canonicalize($host))
+            . '&license_key=' . urlencode($licenseKey)
+            . '&platform=magento'
+            . '&module='      . urlencode(self::MODULE_ID);
+
+        $status = 0;
+        $body   = '';
+        try {
+            $this->curl->setTimeout(5);
+            $this->curl->addHeader('Accept', 'application/json');
+            $this->curl->addHeader('User-Agent', 'ETechFlow-Lic/1.0');
+            $this->curl->get($url);
+            $status = (int) $this->curl->getStatus();
+            $body   = (string) $this->curl->getBody();
+        } catch (\Exception) {
+            return null;
+        }
+
+        if ($status === 200 && $body !== '') {
+            $data  = json_decode($body, true);
+            $valid = !empty($data['valid']);
+            $this->cache->save(
+                $valid ? '1' : '0',
+                $cacheKey,
+                [self::CACHE_TAG],
+                $valid ? self::CACHE_TTL_VALID : self::CACHE_TTL_REJECT
+            );
+            return $valid;
+        }
+
+        if ($status === 401 || $status === 403) {
+            $this->cache->save('0', $cacheKey, [self::CACHE_TAG], self::CACHE_TTL_REJECT);
+            return false;
+        }
+
+        return null;
+    }
+
+    private function getPortalApiBase(): string
+    {
+        $api = trim((string) $this->scopeConfig->getValue(self::XML_PATH_PORTAL_API_URL));
+        if ($api !== '') {
+            return $api;
+        }
+        $browser = trim((string) $this->scopeConfig->getValue(self::XML_PATH_PORTAL_URL));
+        if ($browser !== '' && !str_contains($browser, '127.0.0.1') && !str_contains($browser, 'localhost')) {
+            return $browser;
+        }
+        return self::DEFAULT_PORTAL_API;
+    }
+
     public function computeKey(string $host): string
     {
         $payload = $this->canonicalize($host) . ':' . self::MODULE_ID;
@@ -98,10 +189,6 @@ class LicenseValidator
         return rtrim(strtr(base64_encode($raw), '+/', '-_'), '=');
     }
 
-    /**
-     * @param string $host
-     * @return string
-     */
     public function computeBundleKey(string $host): string
     {
         $payload = $this->canonicalize($host) . ':' . self::BUNDLE_ID;
@@ -110,10 +197,6 @@ class LicenseValidator
         return rtrim(strtr(base64_encode($raw), '+/', '-_'), '=');
     }
 
-    /**
-     * @param string $host
-     * @return string
-     */
     private function canonicalize(string $host): string
     {
         $host = strtolower(trim($host));
@@ -123,27 +206,18 @@ class LicenseValidator
         return $host;
     }
 
-    /**
-     * @return string
-     */
     public function getConfiguredKey(): string
     {
         $value = $this->scopeConfig->getValue(self::XML_PATH_LICENSE_KEY, ScopeInterface::SCOPE_STORE);
         return trim((string) $value);
     }
 
-    /**
-     * @return string
-     */
     public function getConfiguredBundleKey(): string
     {
         $value = $this->scopeConfig->getValue(self::XML_PATH_BUNDLE_LICENSE_KEY, ScopeInterface::SCOPE_STORE);
         return trim((string) $value);
     }
 
-    /**
-     * @return bool
-     */
     public function isProductionEnvironment(): bool
     {
         $value = $this->scopeConfig->getValue(self::XML_PATH_PRODUCTION_ENVIRONMENT, ScopeInterface::SCOPE_STORE);
@@ -153,24 +227,42 @@ class LicenseValidator
         return (bool) $value;
     }
 
-    /**
-     * @return string
-     */
     public function getCurrentHost(): string
     {
         try {
-            $url = $this->storeManager->getStore()->getBaseUrl();
+            $url  = $this->storeManager->getStore()->getBaseUrl();
             $host = parse_url($url, PHP_URL_HOST);
             return is_string($host) ? strtolower($host) : '';
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return '';
         }
     }
 
-    /**
-     * @param string|null $host
-     * @return bool
-     */
+    private function isLocallyIssuedKey(string $key, string $host): bool
+    {
+        $issuedKey = trim((string) $this->scopeConfig->getValue(self::XML_PATH_ISSUED_KEY));
+        if ($issuedKey === '' || !hash_equals($issuedKey, $key)) {
+            return false;
+        }
+        $issuedDomain = trim((string) $this->scopeConfig->getValue(self::XML_PATH_ISSUED_DOMAIN));
+        if ($issuedDomain === '' || $this->canonicalize($issuedDomain) !== $this->canonicalize($host)) {
+            return false;
+        }
+        $issuedAt = (int) $this->scopeConfig->getValue(self::XML_PATH_ISSUED_AT);
+        if ($issuedAt === 0) {
+            return false;
+        }
+        return (time() - $issuedAt) < 172800;
+    }
+
+    private function isExplicitlyRevoked(): bool
+    {
+        return (string) $this->scopeConfig->getValue(
+            self::XML_PATH_REVOKED,
+            ScopeInterface::SCOPE_STORE
+        ) === '1';
+    }
+
     public function isDevHost(?string $host = null): bool
     {
         $check = $host !== null
@@ -179,10 +271,6 @@ class LicenseValidator
         return $this->isDevelopmentHost($check);
     }
 
-    /**
-     * @param string $host
-     * @return bool
-     */
     private function isDevelopmentHost(string $host): bool
     {
         if ($host === 'localhost' || str_starts_with($host, '127.')) {
@@ -195,17 +283,24 @@ class LicenseValidator
             return true;
         }
         foreach (['.test', '.local', '.localhost', '.dev', '.example', '.invalid'] as $s) {
-            if (str_ends_with($host, $s)) return true;
+            if (str_ends_with($host, $s)) {
+                return true;
+            }
         }
         foreach (['staging.', 'stage.', 'dev.', 'qa.', 'uat.', 'test.', 'preview.', 'sandbox.'] as $p) {
-            if (str_starts_with($host, $p)) return true;
+            if (str_starts_with($host, $p)) {
+                return true;
+            }
         }
-        if (preg_match('/-(staging|stage|dev|qa|uat|test|preview|sandbox)\./', $host)) return true;
         foreach (['.magento.cloud', '.magentocloud.com', '.cloud.magento'] as $s) {
-            if (str_ends_with($host, $s)) return true;
+            if (str_ends_with($host, $s)) {
+                return true;
+            }
         }
-        foreach (['.ngrok.io', '.ngrok-free.app', '.loca.lt', '.serveo.net'] as $s) {
-            if (str_ends_with($host, $s)) return true;
+        foreach (['.ngrok.io', '.ngrok-free.app', '.ngrok-free.dev', '.loca.lt', '.serveo.net'] as $s) {
+            if (str_ends_with($host, $s)) {
+                return true;
+            }
         }
         return false;
     }

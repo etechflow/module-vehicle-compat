@@ -74,12 +74,16 @@ class Config
     private const BADGE_STYLES = ['success', 'info', 'warning', 'neutral'];
 
     public function __construct(
-        private readonly ScopeConfigInterface $scopeConfig
+        private readonly ScopeConfigInterface $scopeConfig,
+        private readonly LicenseValidator $licenseValidator
     ) {
     }
 
     public function isEnabled(?int $storeId = null): bool
     {
+        if (!$this->licenseValidator->isValid()) {
+            return false;
+        }
         return $this->scopeConfig->isSetFlag(
             self::XML_PATH_ENABLED,
             ScopeInterface::SCOPE_STORE,

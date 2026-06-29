@@ -24,6 +24,16 @@
                    showInWebsite="0"
                    showInStore="0">
                 <label>License</label>
+                <field id="portal_url" translate="label comment" type="text"
+                       sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>License Portal URL</label>
+                    <comment><![CDATA[URL of the eTechFlow license portal used to validate SP-XXXX keys. Default: https://license-service.etechflow.com]]></comment>
+                </field>
+                <field id="portal_api_url" translate="label comment" type="text"
+                       sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>License Validation API URL (optional override)</label>
+                    <comment><![CDATA[Optional server-to-server validation URL override. If blank, the Portal URL above is used.]]></comment>
+                </field>
                 <field id="production_environment"
                        translate="label comment tooltip"
                        type="select"
